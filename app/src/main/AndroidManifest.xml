@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sinbaram.mapgo">
 
     <uses-permission android:name="android.permission.CAMERA" />
@@ -22,6 +23,7 @@
         <!-- "AR Required" app, requires "Google Play Services for AR" (ARCore)
              to be installed, as the app does not include any non-AR features. -->
         <meta-data android:name="com.google.ar.core" android:value="optional" />
+        <meta-data android:name="com.naver.maps.map.CLIENT_ID" android:value="v1ntplsq7k" />
     </application>
 
 </manifest>
