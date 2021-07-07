@@ -2,7 +2,12 @@
 
 ![PNU Symbol](https://www.pusan.ac.kr/_contents/kor/_Img/07Intro/ui05.jpg)
 
-![Android github action](https://github.com/PNU-Sinbaram/MapGo/actions/workflows/android-ci.yml/badge.svg?branch=main)
+[![License](https://img.shields.io/github/license/PNU-Sinbaram/MapGo)](./LICENSE)
+[![Issues](https://img.shields.io/github/issues/PNU-Sinbaram/MapGo)](https://github.com/PNU-Sinbaram/MapGo/issues)
+[![Stars](https://img.shields.io/github/stars/PNU-Sinbaram/MapGo)](https://github.com/PNU-Sinbaram/MapGo)
+[![Forks](https://img.shields.io/github/forks/PNU-Sinbaram/MapGo)](https://github.com/PNU-Sinbaram/MapGo)
+[![Android github action](https://github.com/PNU-Sinbaram/MapGo/actions/workflows/android-ci.yml/badge.svg?branch=main)](https://github.com/PNU-Sinbaram/MapGo/actions)
+[![Hackathon badge](https://img.shields.io/badge/WIP-SW%20Hackathon%202021-blueviolet)](https://github.com/PNU-Sinbaram/MapGo)
 
 ## Figma
 ![image](https://user-images.githubusercontent.com/24654975/117912308-3da9ec80-b31a-11eb-8c52-264c122f2a2b.png)
