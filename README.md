@@ -10,7 +10,7 @@
 [![Hackathon badge](https://img.shields.io/badge/WIP-SW%20Hackathon%202021-blueviolet)](https://github.com/PNU-Sinbaram/MapGo)
 
 ## Figma
-![image](https://user-images.githubusercontent.com/24654975/117912308-3da9ec80-b31a-11eb-8c52-264c122f2a2b.png)
+![image](https://user-images.githubusercontent.com/24654975/124858409-f45bdd80-dfe8-11eb-9805-fd11302c2b8e.png)
 
 ## License
 <img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
