@@ -1,6 +1,6 @@
 # MapGo
 
-![PNU Symbol](https://www.pusan.ac.kr/_contents/kor/_Img/07Intro/ui05.jpg)
+![PNU Symbol](https://www.pusan.ac.kr/_contents/kor/_Img/07Intro/ui07.jpg)
 
 [![License](https://img.shields.io/github/license/PNU-Sinbaram/MapGo)](./LICENSE)
 [![Issues](https://img.shields.io/github/issues/PNU-Sinbaram/MapGo)](https://github.com/PNU-Sinbaram/MapGo/issues)
