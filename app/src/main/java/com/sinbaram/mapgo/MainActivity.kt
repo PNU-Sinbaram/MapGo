@@ -7,11 +7,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Toast
-import com.google.ar.core.ArCoreApk
-import com.google.ar.core.Config
-import com.google.ar.core.Session
+import com.google.ar.core.*
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import com.sinbaram.mapgo.AR.CameraPermissionHelper
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     var mUserRequestedInstall = true
@@ -72,6 +71,26 @@ class MainActivity : AppCompatActivity() {
                 .show()
             return
         }
+
+        // Create a camera config filter for the session.
+        val filter = CameraConfigFilter(mSession)
+
+        // Return only camera configs that target 30 fps camera capture frame rate.
+        filter.targetFps = EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_30)
+
+        // Return only camera configs that will not use the depth sensor.
+        filter.depthSensorUsage = EnumSet.of(CameraConfig.DepthSensorUsage.DO_NOT_USE)
+
+        // Get list of configs that match filter settings.
+        // In this case, this list is guaranteed to contain at least one element,
+        // because both TargetFps.TARGET_FPS_30 and DepthSensorUsage.DO_NOT_USE
+        // are supported on all ARCore supported devices.
+        val cameraConfigList = mSession!!.getSupportedCameraConfigs(filter)
+
+        // Use element 0 from the list of returned camera configs. This is because
+        // it contains the camera config that best matches the specified filter
+        // settings.
+        mSession!!.cameraConfig = cameraConfigList[0]
     }
 
     override fun onDestroy() {
