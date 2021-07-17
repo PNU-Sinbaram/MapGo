@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.Toast
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
-import com.sinbaram.mapgo.AR.CameraPermissionHelper
+import com.sinbaram.mapgo.AR.Helper.CameraPermissionHelper
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
