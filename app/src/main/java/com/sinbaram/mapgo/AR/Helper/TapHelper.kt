@@ -1,4 +1,4 @@
-package com.sinbaram.mapgo.AR
+package com.sinbaram.mapgo.AR.Helper
 
 import android.content.Context
 import android.view.GestureDetector
