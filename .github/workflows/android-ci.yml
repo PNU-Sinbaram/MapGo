@@ -23,7 +23,8 @@ jobs:
         run: |
           echo $SECRET_KEY >> ./client/apikey.properties
       - name: Build debug APK
-        run: bash ./client/gradlew assembleDebug --stacktrace
+        run: bash ./gradlew assembleDebug --stacktrace
+        working-directory: ./client
       - name: Upload APK
         uses: actions/upload-artifact@v1
         with:
