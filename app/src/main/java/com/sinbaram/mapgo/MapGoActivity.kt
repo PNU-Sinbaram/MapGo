@@ -16,7 +16,7 @@ import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class MapGoActivity : AppCompatActivity() {
+class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     lateinit var mBinding : ActivityMapgoBinding
     lateinit var mSession : Session
     lateinit var mSurfaceView : GLSurfaceView
@@ -31,6 +31,14 @@ class MapGoActivity : AppCompatActivity() {
 
         //! Bind each view to member variables
         mSurfaceView = mBinding.surfaceView
+
+        //! Setup renderer
+        mSurfaceView.preserveEGLContextOnPause = true
+        mSurfaceView.setEGLContextClientVersion(2)
+        mSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+        mSurfaceView.setRenderer(this)
+        mSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+        mSurfaceView.setWillNotDraw(false)
 
         if (!CheckARSupport())
             Toast.makeText(this, "Cannot find AR Core module in this android device", Toast.LENGTH_LONG)
@@ -140,5 +148,17 @@ class MapGoActivity : AppCompatActivity() {
             }, 200)
         }
         return availability.isSupported
+    }
+
+    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+        TODO("Not yet implemented")
     }
 }
