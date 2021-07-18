@@ -21,11 +21,11 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.MAPGO_KEY }}
         run: |
-          echo $SECRET_KEY >> ./apikey.properties
+          echo $SECRET_KEY >> ./client/apikey.properties
       - name: Build debug APK
-        run: bash ./gradlew assembleDebug --stacktrace
+        run: bash ./client/gradlew assembleDebug --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v1
         with:
           name: app
-          path: app/build/outputs/apk/debug
+          path: ./client/app/build/outputs/apk/debug
