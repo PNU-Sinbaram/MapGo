@@ -81,7 +81,8 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         lifecycle.addObserver(renderFrameTimeHelper)
         lifecycle.addObserver(cpuImageFrameTimeHelper)
 
-        setContentView(R.layout.activity_mapgo)
+        val view = mBinding.root
+        setContentView(view)
     }
 
     override fun onResume() {
@@ -272,7 +273,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         }
     }
 
-    private fun renderProcessedImageGpuDownload(frame: Frame?): Any {
-        TODO("Not yet implemented")
+    private fun renderProcessedImageGpuDownload(frame: Frame?) {
+        // TODO("Not yet implemented")
     }
 }
