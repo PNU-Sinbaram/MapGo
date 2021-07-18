@@ -11,11 +11,15 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.*
+import com.sinbaram.mapgo.AR.Common.TextureReader
+import com.sinbaram.mapgo.AR.Common.TextureReaderImage
 import com.sinbaram.mapgo.AR.Helper.CameraPermissionHelper
 import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
+import com.sinbaram.mapgo.AR.Helper.TrackingStateHelper
 import com.sinbaram.mapgo.AR.Renderer.CpuImageRenderer
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
+import java.io.IOException
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -35,7 +39,19 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     val renderFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
     val cpuImageFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
     val mMessageSnackbarHelper : SnackbarHelper = SnackbarHelper()
+    val mTextureReader : TextureReader = TextureReader()
+    val mCpuImageRenderer : CpuImageRenderer = CpuImageRenderer()
+    val mTrackingStateHelper : TrackingStateHelper = TrackingStateHelper(this)
+    val mFrameImageInUseLock : Object = Object()
     var mUserRequestedInstall = false
+
+    companion object {
+        val IMAGE_WIDTH : Int = 1280
+        val IMAGE_HEIGHT : Int = 720
+
+        val TEXTURE_WIDTH : Int = 1920
+        val TEXTURE_HEIGHT : Int = 1080
+    }
 
     var mSession : Session? = null
 
@@ -213,14 +229,50 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        TODO("Not yet implemented")
+        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
+
+        // Create the texture and pass it to ARCore session to be filled during update
+        try {
+            mCpuImageRenderer.createOnGlThread(this)
+
+            // ths image format can be either IMAGE_FORMAT_RGBA or IMAGE_FORMAT_I8.
+            // Set keepAspectRatio to false so that the output image covers the whole viewport
+            mTextureReader.create(
+                this,
+                TextureReaderImage.IMAGE_FORMAT_I8,
+                IMAGE_WIDTH,
+                IMAGE_HEIGHT,
+                false)
+        } catch(e : IOException) {
+            Log.e(TAG, "Failed to read an asset file")
+        }
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        TODO("Not yet implemented")
+        GLES20.glViewport(0, 0, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        if (mSession == null)
+            return
+
+        synchronized(mFrameImageInUseLock) {
+            try {
+                mSession!!.setCameraTextureName(mCpuImageRenderer.textureId)
+                val frame = mSession!!.update()
+                val camera = frame.camera
+
+                mTrackingStateHelper.updateKeepScreenOnFlag(camera.trackingState)
+                renderFrameTimeHelper.nextFrame()
+                renderProcessedImageGpuDownload(frame)
+            } catch(e : Exception) {
+                // Avoid crashing the application due to unhandled exceptions
+                Log.e(TAG, "Exception on the OpenGL Thread")
+            }
+        }
+    }
+
+    private fun renderProcessedImageGpuDownload(frame: Frame?): Any {
         TODO("Not yet implemented")
     }
 }
