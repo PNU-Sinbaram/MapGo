@@ -1,31 +1,50 @@
 package com.sinbaram.mapgo
 
+import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.ar.core.*
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
+import com.google.ar.core.exceptions.*
 import com.sinbaram.mapgo.AR.Helper.CameraPermissionHelper
 import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
+import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
+import com.sinbaram.mapgo.AR.Renderer.CpuImageRenderer
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
+    val TAG = MapGoActivity::class.java.simpleName
+
     lateinit var mBinding : ActivityMapgoBinding
-    lateinit var mSession : Session
+    lateinit var mConfig : Config
     lateinit var mSurfaceView : GLSurfaceView
 
-    var renderFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
-    var cpuImageFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
+    lateinit var mCpuResolution : CameraConfig
+    lateinit var mLowCameraConfig : CameraConfig
+    lateinit var mMediumCameraConfig : CameraConfig
+    lateinit var mHighCameraConfig : CameraConfig
 
-    var mUserRequestedInstall = true
-    
+    val renderFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
+    val cpuImageFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
+    val mMessageSnackbarHelper : SnackbarHelper = SnackbarHelper()
+    var mUserRequestedInstall = false
+
+    var mSession : Session? = null
+
+    enum class ImageResolution {
+        LOW_RESOLUTION,
+        MEDIUM_RESOLUTION,
+        HIGH_RESOLUTION
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,79 +65,127 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         lifecycle.addObserver(renderFrameTimeHelper)
         lifecycle.addObserver(cpuImageFrameTimeHelper)
 
-        if (!CheckARSupport())
-            Toast.makeText(this, "Cannot find AR Core module in this android device", Toast.LENGTH_LONG)
-
         setContentView(R.layout.activity_mapgo)
     }
 
     override fun onResume() {
         super.onResume()
 
-        // ARCore requires camera permission to operate.
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            CameraPermissionHelper.requestCameraPermission(this)
-            return
-        }
+        if (mSession == null) {
+            var exception : Exception? = null
+            var message : String? = null
 
-        // Ensure that Google Play Services for AR and ARCore device profile data are
-        // installed and up to date.
-        try {
-            if (mSession == null) {
-                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
-                    ArCoreApk.InstallStatus.INSTALLED -> {
-                        // Success: Safe to create the AR session.
-                        mSession = Session(this)
-
-                        // Create a session config.
-                        val config = Config(mSession)
-
-                        // Do feature-specific operations here, such as enabling depth or turning on
-                        // support for Augmented Faces.
-
-                        // Configure the session.
-                        mSession!!.configure(config)
-                    }
+            try {
+                when(ArCoreApk.getInstance().requestInstall(this, !mUserRequestedInstall)) {
                     ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        // When this method returns `INSTALL_REQUESTED`:
-                        // 1. ARCore pauses this activity.
-                        // 2. ARCore prompts the user to install or update Google Play
-                        //    Services for AR (market://details?id=com.google.ar.core).
-                        // 3. ARCore downloads the latest device profile data.
-                        // 4. ARCore resumes this activity. The next invocation of
-                        //    requestInstall() will either return `INSTALLED` or throw an
-                        //    exception if the installation or update did not succeed.
-                        mUserRequestedInstall = false
+                        mUserRequestedInstall = true
                         return
                     }
                 }
+
+                // ARCore requires camera permission to operate.
+                if (!CameraPermissionHelper.hasCameraPermission(this)) {
+                    CameraPermissionHelper.requestCameraPermission(this)
+                    return
+                }
+
+                mSession = Session(this)
+                mConfig = Config(mSession)
             }
-        } catch (e: UnavailableUserDeclinedInstallationException) {
-            // Display an appropriate message to the user and return gracefully.
-            Toast.makeText(this, "TODO: handle exception " + e, Toast.LENGTH_LONG)
-                .show()
-            return
+            catch(e : UnavailableArcoreNotInstalledException) {
+                message = "Please install ARCore"
+                exception = e
+            }
+            catch(e : UnavailableApkTooOldException) {
+                message = "Please Update ARCore"
+                exception = e
+            }
+            catch(e : UnavailableSdkTooOldException) {
+                message = "Please Update this application"
+                exception = e
+            }
+            catch(e : Exception) {
+                message = "This device does not support AR"
+                exception = e
+            }
+
+            if (message != null) {
+                mMessageSnackbarHelper.showError(this, message)
+                Log.e(TAG, "Exception creating session", exception)
+                return
+            }
         }
 
-        // Create a camera config filter for the session.
-        val filter = CameraConfigFilter(mSession)
+        obtainCameraConfigs()
 
-        // Return only camera configs that target 30 fps camera capture frame rate.
-        filter.targetFps = EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_30)
+        try {
+            mSession!!.resume()
+        }
+        catch (e : CameraNotAvailableException) {
+            mMessageSnackbarHelper.showError(this, "Camera not available. Try restarting the application")
+            mSession = null
+            return
+        }
+        mSurfaceView.onResume()
+    }
 
-        // Return only camera configs that will not use the depth sensor.
-        filter.depthSensorUsage = EnumSet.of(CameraConfig.DepthSensorUsage.DO_NOT_USE)
+    override fun onPause() {
+        super.onPause()
+        if (mSession != null) {
+            mSurfaceView.onPause()
+            mSession!!.pause()
+        }
+    }
 
-        // Get list of configs that match filter settings.
-        // In this case, this list is guaranteed to contain at least one element,
-        // because both TargetFps.TARGET_FPS_30 and DepthSensorUsage.DO_NOT_USE
-        // are supported on all ARCore supported devices.
-        val cameraConfigList = mSession!!.getSupportedCameraConfigs(filter)
+    // Obtain the supported camera configs and build the list of radio button one for each camera config
+    private fun obtainCameraConfigs() {
+        // First obtain the session handle before getting the camera config
+        if (mSession != null) {
+            // Create filter here with desired fps filters
+            var cameraConfigFilter : CameraConfigFilter =
+                CameraConfigFilter(mSession)
+                    .setTargetFps(EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_30, CameraConfig.TargetFps.TARGET_FPS_60))
 
-        // Use element 0 from the list of returned camera configs. This is because
-        // it contains the camera config that best matches the specified filter
-        // settings.
-        mSession!!.cameraConfig = cameraConfigList[0]
+            var cameraConfigs : List<CameraConfig> = mSession!!.getSupportedCameraConfigs(cameraConfigFilter)
+
+            mLowCameraConfig = getCameraConfigWithSelectedResolution(cameraConfigs,
+                ImageResolution.LOW_RESOLUTION
+            )
+            mMediumCameraConfig = getCameraConfigWithSelectedResolution(cameraConfigs,
+                ImageResolution.MEDIUM_RESOLUTION
+            )
+            mHighCameraConfig = getCameraConfigWithSelectedResolution(cameraConfigs,
+                ImageResolution.HIGH_RESOLUTION
+            )
+
+            // Default camera config
+            mCpuResolution = mMediumCameraConfig
+        }
+    }
+
+    // Get the camera config with selected resolution
+    private fun getCameraConfigWithSelectedResolution(cameraConfigs: List<CameraConfig>, resolution: MapGoActivity.ImageResolution): CameraConfig {
+        // Take the first three camera configs, if camera configs size are larger than 3
+        var cameraConfigsByResolution : List<CameraConfig> = ArrayList<CameraConfig>(
+            cameraConfigs.subList(0, Math.min(cameraConfigs.size, 3))
+        )
+        Collections.sort(cameraConfigsByResolution, {
+            p1 : CameraConfig, p2 : CameraConfig ->
+            Integer.compare(p1.imageSize.height, p2.imageSize.height)
+        })
+        var cameraConfig : CameraConfig = cameraConfigsByResolution.get(0)
+        when(resolution) {
+            ImageResolution.LOW_RESOLUTION -> {
+                cameraConfig = cameraConfigsByResolution.get(0)
+            }
+            ImageResolution.MEDIUM_RESOLUTION -> {
+                cameraConfig = cameraConfigsByResolution.get(1)
+            }
+            ImageResolution.HIGH_RESOLUTION -> {
+                cameraConfig = cameraConfigsByResolution.get(2)
+            }
+        }
+        return cameraConfig
     }
 
     override fun onDestroy() {
@@ -143,17 +210,6 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             }
             finish()
         }
-    }
-
-    fun CheckARSupport() : Boolean {
-        val availability = ArCoreApk.getInstance().checkAvailability(this)
-        if (availability.isTransient) {
-            // Continue to query availability at 5Hz while compatibility is checked in the background.
-            Handler(Looper.getMainLooper()).postDelayed({
-                CheckARSupport()
-            }, 200)
-        }
-        return availability.isSupported
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
