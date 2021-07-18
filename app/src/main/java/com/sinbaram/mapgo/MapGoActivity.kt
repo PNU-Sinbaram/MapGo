@@ -21,8 +21,11 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     lateinit var mSession : Session
     lateinit var mSurfaceView : GLSurfaceView
 
-    var mUserRequestedInstall = true
+    var renderFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
+    var cpuImageFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
 
+    var mUserRequestedInstall = true
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -39,6 +42,9 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         mSurfaceView.setRenderer(this)
         mSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         mSurfaceView.setWillNotDraw(false)
+
+        lifecycle.addObserver(renderFrameTimeHelper)
+        lifecycle.addObserver(cpuImageFrameTimeHelper)
 
         if (!CheckARSupport())
             Toast.makeText(this, "Cannot find AR Core module in this android device", Toast.LENGTH_LONG)
