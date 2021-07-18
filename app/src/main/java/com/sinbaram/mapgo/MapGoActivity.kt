@@ -5,23 +5,37 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import com.sinbaram.mapgo.AR.Helper.CameraPermissionHelper
+import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
+import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.util.*
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
-class MainActivity : AppCompatActivity() {
+class MapGoActivity : AppCompatActivity() {
+    lateinit var mBinding : ActivityMapgoBinding
+    lateinit var mSession : Session
+    lateinit var mSurfaceView : GLSurfaceView
+
     var mUserRequestedInstall = true
-    var mSession : Session? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        //! Binding mapgo activity layout
+        mBinding = ActivityMapgoBinding.inflate(layoutInflater)
+
+        //! Bind each view to member variables
+        mSurfaceView = mBinding.surfaceView
 
         if (!CheckARSupport())
             Toast.makeText(this, "Cannot find AR Core module in this android device", Toast.LENGTH_LONG)
+
+        setContentView(R.layout.activity_mapgo)
     }
 
     override fun onResume() {
