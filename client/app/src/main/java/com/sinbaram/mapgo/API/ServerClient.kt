@@ -1,5 +1,6 @@
 package com.sinbaram.mapgo.API
 
+import com.sinbaram.mapgo.Model.CheckInLog
 import com.sinbaram.mapgo.Model.Recommendation
 import retrofit2.Call
 import retrofit2.http.*
@@ -11,7 +12,7 @@ interface ServerClient {
         @Field("User_ID") userID: String,
         @Field("lat") latitude: Float,
         @Field("long") longitude: Float
-    ): Call<Void>
+    ): Call<CheckInLog>
 
     @Headers("Accept: application/json")
     @GET("/MapGo/checkin")
@@ -20,7 +21,7 @@ interface ServerClient {
         @Query("lat") latitude: Float,
         @Query("long") longitude: Float,
         @Query("timeStamp") timeStamp: String
-    ): Call<Void>
+    ): Call<List<CheckInLog>>
 
     @Headers("Accept: application/json")
     @GET("/MapGo/recommend")
