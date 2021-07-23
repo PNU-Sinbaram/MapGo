@@ -16,12 +16,7 @@ interface ServerClient {
 
     @Headers("Accept: application/json")
     @GET("/MapGo/checkin")
-    fun GetCheckIn(
-        @Query("User_ID") userID: String,
-        @Query("lat") latitude: Float,
-        @Query("long") longitude: Float,
-        @Query("timeStamp") timeStamp: String
-    ): Call<List<CheckInLog>>
+    fun GetCheckIn(): Call<List<CheckInLog>>
 
     @Headers("Accept: application/json")
     @GET("/MapGo/recommend")
