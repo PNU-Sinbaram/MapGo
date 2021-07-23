@@ -27,33 +27,33 @@ import javax.microedition.khronos.opengles.GL10
 class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     val TAG = MapGoActivity::class.java.simpleName
 
-    lateinit var mBinding : ActivityMapgoBinding
-    lateinit var mConfig : Config
-    lateinit var mSurfaceView : GLSurfaceView
+    lateinit var mBinding: ActivityMapgoBinding
+    lateinit var mConfig: Config
+    lateinit var mSurfaceView: GLSurfaceView
 
-    lateinit var mCpuResolution : CameraConfig
-    lateinit var mLowCameraConfig : CameraConfig
-    lateinit var mMediumCameraConfig : CameraConfig
-    lateinit var mHighCameraConfig : CameraConfig
+    lateinit var mCpuResolution: CameraConfig
+    lateinit var mLowCameraConfig: CameraConfig
+    lateinit var mMediumCameraConfig: CameraConfig
+    lateinit var mHighCameraConfig: CameraConfig
 
-    val renderFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
-    val cpuImageFrameTimeHelper : FrameTimeHelper = FrameTimeHelper()
-    val mMessageSnackbarHelper : SnackbarHelper = SnackbarHelper()
-    val mTextureReader : TextureReader = TextureReader()
-    val mCpuImageRenderer : CpuImageRenderer = CpuImageRenderer()
-    val mTrackingStateHelper : TrackingStateHelper = TrackingStateHelper(this)
-    val mFrameImageInUseLock : Object = Object()
+    val renderFrameTimeHelper: FrameTimeHelper = FrameTimeHelper()
+    val cpuImageFrameTimeHelper: FrameTimeHelper = FrameTimeHelper()
+    val mMessageSnackbarHelper: SnackbarHelper = SnackbarHelper()
+    val mTextureReader: TextureReader = TextureReader()
+    val mCpuImageRenderer: CpuImageRenderer = CpuImageRenderer()
+    val mTrackingStateHelper: TrackingStateHelper = TrackingStateHelper(this)
+    val mFrameImageInUseLock: Object = Object()
     var mUserRequestedInstall = false
 
     companion object {
-        val IMAGE_WIDTH : Int = 1280
-        val IMAGE_HEIGHT : Int = 720
+        val IMAGE_WIDTH: Int = 1280
+        val IMAGE_HEIGHT: Int = 720
 
-        val TEXTURE_WIDTH : Int = 1920
-        val TEXTURE_HEIGHT : Int = 1080
+        val TEXTURE_WIDTH: Int = 1920
+        val TEXTURE_HEIGHT: Int = 1080
     }
 
-    var mSession : Session? = null
+    var mSession: Session? = null
 
     enum class ImageResolution {
         LOW_RESOLUTION,
@@ -89,11 +89,11 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         super.onResume()
 
         if (mSession == null) {
-            var exception : Exception? = null
-            var message : String? = null
+            var exception: Exception? = null
+            var message: String? = null
 
             try {
-                when(ArCoreApk.getInstance().requestInstall(this, !mUserRequestedInstall)) {
+                when (ArCoreApk.getInstance().requestInstall(this, !mUserRequestedInstall)) {
                     ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
                         mUserRequestedInstall = true
                         return
@@ -108,20 +108,16 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
                 mSession = Session(this)
                 mConfig = Config(mSession)
-            }
-            catch(e : UnavailableArcoreNotInstalledException) {
+            } catch (e: UnavailableArcoreNotInstalledException) {
                 message = "Please install ARCore"
                 exception = e
-            }
-            catch(e : UnavailableApkTooOldException) {
+            } catch (e: UnavailableApkTooOldException) {
                 message = "Please Update ARCore"
                 exception = e
-            }
-            catch(e : UnavailableSdkTooOldException) {
+            } catch (e: UnavailableSdkTooOldException) {
                 message = "Please Update this application"
                 exception = e
-            }
-            catch(e : Exception) {
+            } catch (e: Exception) {
                 message = "This device does not support AR"
                 exception = e
             }
@@ -137,9 +133,11 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
         try {
             mSession!!.resume()
-        }
-        catch (e : CameraNotAvailableException) {
-            mMessageSnackbarHelper.showError(this, "Camera not available. Try restarting the application")
+        } catch (e: CameraNotAvailableException) {
+            mMessageSnackbarHelper.showError(
+                this,
+                "Camera not available. Try restarting the application"
+            )
             mSession = null
             return
         }
@@ -159,19 +157,28 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         // First obtain the session handle before getting the camera config
         if (mSession != null) {
             // Create filter here with desired fps filters
-            var cameraConfigFilter : CameraConfigFilter =
+            var cameraConfigFilter: CameraConfigFilter =
                 CameraConfigFilter(mSession)
-                    .setTargetFps(EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_30, CameraConfig.TargetFps.TARGET_FPS_60))
+                    .setTargetFps(
+                        EnumSet.of(
+                            CameraConfig.TargetFps.TARGET_FPS_30,
+                            CameraConfig.TargetFps.TARGET_FPS_60
+                        )
+                    )
 
-            var cameraConfigs : List<CameraConfig> = mSession!!.getSupportedCameraConfigs(cameraConfigFilter)
+            var cameraConfigs: List<CameraConfig> =
+                mSession!!.getSupportedCameraConfigs(cameraConfigFilter)
 
-            mLowCameraConfig = getCameraConfigWithSelectedResolution(cameraConfigs,
+            mLowCameraConfig = getCameraConfigWithSelectedResolution(
+                cameraConfigs,
                 ImageResolution.LOW_RESOLUTION
             )
-            mMediumCameraConfig = getCameraConfigWithSelectedResolution(cameraConfigs,
+            mMediumCameraConfig = getCameraConfigWithSelectedResolution(
+                cameraConfigs,
                 ImageResolution.MEDIUM_RESOLUTION
             )
-            mHighCameraConfig = getCameraConfigWithSelectedResolution(cameraConfigs,
+            mHighCameraConfig = getCameraConfigWithSelectedResolution(
+                cameraConfigs,
                 ImageResolution.HIGH_RESOLUTION
             )
 
@@ -181,17 +188,19 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     }
 
     // Get the camera config with selected resolution
-    private fun getCameraConfigWithSelectedResolution(cameraConfigs: List<CameraConfig>, resolution: MapGoActivity.ImageResolution): CameraConfig {
+    private fun getCameraConfigWithSelectedResolution(
+        cameraConfigs: List<CameraConfig>,
+        resolution: MapGoActivity.ImageResolution
+    ): CameraConfig {
         // Take the first three camera configs, if camera configs size are larger than 3
-        var cameraConfigsByResolution : List<CameraConfig> = ArrayList<CameraConfig>(
+        var cameraConfigsByResolution: List<CameraConfig> = ArrayList<CameraConfig>(
             cameraConfigs.subList(0, Math.min(cameraConfigs.size, 3))
         )
-        Collections.sort(cameraConfigsByResolution, {
-            p1 : CameraConfig, p2 : CameraConfig ->
+        Collections.sort(cameraConfigsByResolution, { p1: CameraConfig, p2: CameraConfig ->
             Integer.compare(p1.imageSize.height, p2.imageSize.height)
         })
-        var cameraConfig : CameraConfig = cameraConfigsByResolution.get(0)
-        when(resolution) {
+        var cameraConfig: CameraConfig = cameraConfigsByResolution.get(0)
+        when (resolution) {
             ImageResolution.LOW_RESOLUTION -> {
                 cameraConfig = cameraConfigsByResolution.get(0)
             }
@@ -219,7 +228,11 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, results)
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            Toast.makeText(this, "Camera permission is needed to run this application", Toast.LENGTH_LONG)
+            Toast.makeText(
+                this,
+                "Camera permission is needed to run this application",
+                Toast.LENGTH_LONG
+            )
                 .show()
             if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
                 // Permission denied with checking "Do not ask again".
@@ -243,8 +256,9 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
                 TextureReaderImage.IMAGE_FORMAT_I8,
                 IMAGE_WIDTH,
                 IMAGE_HEIGHT,
-                false)
-        } catch(e : IOException) {
+                false
+            )
+        } catch (e: IOException) {
             Log.e(TAG, "Failed to read an asset file")
         }
     }
@@ -266,7 +280,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
                 mTrackingStateHelper.updateKeepScreenOnFlag(camera.trackingState)
                 renderFrameTimeHelper.nextFrame()
                 renderProcessedImageGpuDownload(frame)
-            } catch(e : Exception) {
+            } catch (e: Exception) {
                 // Avoid crashing the application due to unhandled exceptions
                 Log.e(TAG, "Exception on the OpenGL Thread")
             }
