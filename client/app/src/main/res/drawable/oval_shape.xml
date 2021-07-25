@@ -6,7 +6,7 @@
         android:height="80dp"
         android:gravity="top|center">
         <shape android:shape="oval">
-            <solid android:color="@color/" />
+            <solid android:color="#ED7D31" />
         </shape>
     </item>
 </layer-list>
