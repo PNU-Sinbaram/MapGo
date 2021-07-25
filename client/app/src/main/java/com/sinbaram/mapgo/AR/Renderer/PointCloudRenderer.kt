@@ -1,13 +1,3 @@
-package com.sinbaram.mapgo.AR.Renderer
-import android.content.Context
-import android.opengl.GLES20
-import android.opengl.Matrix
-import com.google.ar.core.PointCloud
-import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.checkGLError
-import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.loadGLShader
-import java.io.IOException
-
-
 /*
  * Copyright 2017 Google LLC
  *
@@ -23,7 +13,15 @@ import java.io.IOException
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sinbaram.mapgo.AR.Renderer
 
+import android.content.Context
+import android.opengl.GLES20
+import android.opengl.Matrix
+import com.google.ar.core.PointCloud
+import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.checkGLError
+import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.loadGLShader
+import java.io.IOException
 
 /** Renders a point cloud.  */
 class PointCloudRenderer {

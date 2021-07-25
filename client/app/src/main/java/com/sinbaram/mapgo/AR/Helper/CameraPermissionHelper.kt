@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat
  * limitations under the License.
  */
 
-
 /** Helper to ask camera permission.  */
 object CameraPermissionHelper {
     private const val CAMERA_PERMISSION_CODE = 0
@@ -33,8 +32,11 @@ object CameraPermissionHelper {
 
     /** Check to see we have the necessary permissions for this app.  */
     fun hasCameraPermission(activity: Activity?): Boolean {
-        return (ContextCompat.checkSelfPermission(activity!!, CAMERA_PERMISSION)
-                == PackageManager.PERMISSION_GRANTED)
+        return (
+            ContextCompat.checkSelfPermission(
+                activity!!, CAMERA_PERMISSION
+            ) == PackageManager.PERMISSION_GRANTED
+            )
     }
 
     /** Check to see we have the necessary permissions for this app, and ask for them if we don't.  */

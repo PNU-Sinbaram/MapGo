@@ -1,21 +1,3 @@
-package com.sinbaram.mapgo.AR.Renderer
-import android.content.Context
-import android.graphics.BitmapFactory
-import android.opengl.GLES20
-import android.opengl.GLUtils
-import android.opengl.Matrix
-import com.google.ar.core.Plane
-import com.google.ar.core.Pose
-import com.google.ar.core.TrackingState
-import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.checkGLError
-import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.loadGLShader
-import java.io.IOException
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
-import java.util.*
-
-
 /*
  * Copyright 2017 Google LLC
  *
@@ -31,7 +13,23 @@ import java.util.*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.sinbaram.mapgo.AR.Renderer
 
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.opengl.GLES20
+import android.opengl.GLUtils
+import android.opengl.Matrix
+import com.google.ar.core.Plane
+import com.google.ar.core.Pose
+import com.google.ar.core.TrackingState
+import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.checkGLError
+import com.sinbaram.mapgo.AR.Renderer.ShaderUtil.loadGLShader
+import java.io.IOException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
+import java.util.Collections
 
 /** Renders the detected AR planes.  */
 class PlaneRenderer {
@@ -105,7 +103,10 @@ class PlaneRenderer {
 
     /** Updates the plane model transform matrix and extents.  */
     private fun updatePlaneParameters(
-        planeMatrix: FloatArray, extentX: Float, extentZ: Float, boundary: FloatBuffer?
+        planeMatrix: FloatArray,
+        extentX: Float,
+        extentZ: Float,
+        boundary: FloatBuffer?
     ) {
         System.arraycopy(planeMatrix, 0, modelMatrix, 0, 16)
         if (boundary == null) {
@@ -247,7 +248,8 @@ class PlaneRenderer {
                 override fun compare(o1: SortablePlane?, o2: SortablePlane?): Int {
                     return java.lang.Float.compare(o2!!.distance, o1!!.distance)
                 }
-            })
+            }
+        )
         val cameraView = FloatArray(16)
         cameraPose.inverse().toMatrix(cameraView, 0)
 
@@ -325,10 +327,12 @@ class PlaneRenderer {
         private const val INITIAL_BUFFER_BOUNDARY_VERTS = 64
         private const val INITIAL_VERTEX_BUFFER_SIZE_BYTES =
             BYTES_PER_FLOAT * COORDS_PER_VERTEX * VERTS_PER_BOUNDARY_VERT * INITIAL_BUFFER_BOUNDARY_VERTS
-        private const val INITIAL_INDEX_BUFFER_SIZE_BYTES = (BYTES_PER_SHORT
+        private const val INITIAL_INDEX_BUFFER_SIZE_BYTES = (
+            BYTES_PER_SHORT
                 * INDICES_PER_BOUNDARY_VERT
                 * INDICES_PER_BOUNDARY_VERT
-                * INITIAL_BUFFER_BOUNDARY_VERTS)
+                * INITIAL_BUFFER_BOUNDARY_VERTS
+            )
         private const val FADE_RADIUS_M = 0.25f
         private const val DOTS_PER_METER = 10.0f
         private val EQUILATERAL_TRIANGLE_SCALE = (1 / Math.sqrt(3.0)).toFloat()

@@ -21,7 +21,7 @@ import android.util.Log
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.util.*
+import java.util.TreeMap
 
 /** Shader helper functions.  */
 object ShaderUtil {
@@ -110,11 +110,9 @@ object ShaderUtil {
         context.assets.open(filename).use { inputStream ->
             BufferedReader(InputStreamReader(inputStream)).use { reader ->
                 val sb = StringBuilder()
-                var line: String
-                while (reader.readLine().also { line = it } != null) {
+                reader.lineSequence().forEach {
                     val tokens =
-                        line.split(" ").dropLastWhile { it.isEmpty() }
-                            .toTypedArray()
+                        it.split(" ").toTypedArray()
                     if (tokens[0] == "#include") {
                         var includeFilename = tokens[1]
                         includeFilename = includeFilename.replace("\"", "")
@@ -123,7 +121,7 @@ object ShaderUtil {
                         }
                         sb.append(readShaderFileFromAssets(context, includeFilename))
                     } else {
-                        sb.append(line).append("\n")
+                        sb.append(it).append("\n")
                     }
                 }
                 return sb.toString()
