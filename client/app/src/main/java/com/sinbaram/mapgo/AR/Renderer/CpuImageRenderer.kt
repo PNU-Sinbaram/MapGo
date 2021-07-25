@@ -25,8 +25,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-import com.sinbaram.mapgo.AR.Renderer.ShaderUtil
-
 /**
  * This class renders the screen with images from both GPU and CPU. The top half of the screen shows
  * the GPU image, while the bottom half of the screen shows the CPU image.

@@ -31,8 +31,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
-import java.util.*
-
+import java.util.TreeMap
 
 /** Renders an object loaded from an OBJ file in OpenGL.  */
 class ObjectRenderer {
@@ -231,7 +230,7 @@ class ObjectRenderer {
     @Throws(IOException::class)
     fun setUseDepthForOcclusion(context: Context, useDepthForOcclusion: Boolean) {
         if (this.useDepthForOcclusion == useDepthForOcclusion) {
-            return  // No change, does nothing.
+            return // No change, does nothing.
         }
 
         // Toggles the occlusion rendering mode and recompiles the shader.
@@ -301,7 +300,10 @@ class ObjectRenderer {
      * highlight.
      */
     fun setMaterialProperties(
-        ambient: Float, diffuse: Float, specular: Float, specularPower: Float
+        ambient: Float,
+        diffuse: Float,
+        specular: Float,
+        specularPower: Float
     ) {
         this.ambient = ambient
         this.diffuse = diffuse

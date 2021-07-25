@@ -52,7 +52,7 @@ class BackgroundRenderer {
      */
     @JvmOverloads
     @Throws(IOException::class)
-    fun createOnGlThread(context: Context?, depthTextureId: Int =  /*depthTextureId=*/-1) {
+    fun createOnGlThread(context: Context?, depthTextureId: Int = /*depthTextureId=*/-1) {
         // Generate the background texture.
         val textures = IntArray(1)
         GLES20.glGenTextures(1, textures, 0)
@@ -146,7 +146,7 @@ class BackgroundRenderer {
      * @param debugShowDepthMap Toggles whether to show the live camera feed or latest depth image.
      */
     @JvmOverloads
-    fun draw(frame: Frame, debugShowDepthMap: Boolean =  /*debugShowDepthMap=*/false) {
+    fun draw(frame: Frame, debugShowDepthMap: Boolean = /*debugShowDepthMap=*/false) {
         // If display rotation changed (also includes view size change), we need to re-query the uv
         // coordinates for the screen rect, as they may have changed as well.
         if (frame.hasDisplayGeometryChanged()) {
@@ -174,7 +174,10 @@ class BackgroundRenderer {
      * aspect ratio, which matches the cropping behavior of [ ][Frame.transformCoordinates2d].
      */
     fun draw(
-        imageWidth: Int, imageHeight: Int, screenAspectRatio: Float, cameraToDisplayRotation: Int
+        imageWidth: Int,
+        imageHeight: Int,
+        screenAspectRatio: Float,
+        cameraToDisplayRotation: Int
     ) {
         // Crop the camera image to fit the screen aspect ratio.
         val imageAspectRatio = imageWidth.toFloat() / imageHeight

@@ -7,19 +7,30 @@ import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.ar.core.*
-import com.google.ar.core.exceptions.*
+import com.google.ar.core.ArCoreApk
+import com.google.ar.core.CameraConfig
+import com.google.ar.core.CameraConfigFilter
+import com.google.ar.core.Config
+import com.google.ar.core.Frame
+import com.google.ar.core.Session
+import com.google.ar.core.exceptions.CameraNotAvailableException
+import com.google.ar.core.exceptions.UnavailableApkTooOldException
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException
 import com.sinbaram.mapgo.AR.Common.TextureReader
 import com.sinbaram.mapgo.AR.Common.TextureReaderImage
-import com.sinbaram.mapgo.AR.Helper.*
+import com.sinbaram.mapgo.AR.Helper.CameraPermissionHelper
+import com.sinbaram.mapgo.AR.Helper.CpuImageDisplayRotationHelper
+import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
+import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
+import com.sinbaram.mapgo.AR.Helper.TrackingStateHelper
 import com.sinbaram.mapgo.AR.Renderer.CpuImageRenderer
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.io.IOException
-import java.nio.ByteBuffer
-import java.util.*
+import java.util.Collections
+import java.util.EnumSet
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-
 
 class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     val TAG = MapGoActivity::class.java.simpleName
@@ -63,16 +74,16 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //! Binding mapgo activity layout
+        // Binding mapgo activity layout
         mBinding = ActivityMapgoBinding.inflate(layoutInflater)
 
-        //! Bind each view to member variables
+        // Bind each view to member variables
         mSurfaceView = mBinding.surfaceView
 
-        //! Initialize Cpu Image display rotation helper
+        // Initialize Cpu Image display rotation helper
         mCpuImageDisplayRotationHelper = CpuImageDisplayRotationHelper(this)
 
-        //! Setup renderer
+        // Setup renderer
         mSurfaceView.preserveEGLContextOnPause = true
         mSurfaceView.setEGLContextClientVersion(2)
         mSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
@@ -83,7 +94,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         lifecycle.addObserver(renderFrameTimeHelper)
         lifecycle.addObserver(cpuImageFrameTimeHelper)
 
-        //! Pass activity binding root
+        // Pass activity binding root
         setContentView(mBinding.root)
     }
 
@@ -201,9 +212,12 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         var cameraConfigsByResolution: List<CameraConfig> = ArrayList<CameraConfig>(
             cameraConfigs.subList(0, Math.min(cameraConfigs.size, 3))
         )
-        Collections.sort(cameraConfigsByResolution, { p1: CameraConfig, p2: CameraConfig ->
-            Integer.compare(p1.imageSize.height, p2.imageSize.height)
-        })
+        Collections.sort(
+            cameraConfigsByResolution,
+            { p1: CameraConfig, p2: CameraConfig ->
+                Integer.compare(p1.imageSize.height, p2.imageSize.height)
+            }
+        )
         var cameraConfig: CameraConfig = cameraConfigsByResolution.get(0)
         when (resolution) {
             ImageResolution.LOW_RESOLUTION -> {
@@ -240,13 +254,15 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             }
 
             // Let the user know that the camera config is set.
-            val toastMessage = ("Set the camera config with CPU image resolution of "
-                    + cameraConfig.imageSize
-                    + " and fps "
-                    + cameraConfig.fpsRange
-                    + ".")
+            val toastMessage = (
+                "Set the camera config with CPU image resolution of " +
+                    cameraConfig.imageSize +
+                    " and fps " +
+                    cameraConfig.fpsRange +
+                    "."
+                )
             val toast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG)
-            toast.setGravity(Gravity.BOTTOM,  /* xOffset= */0,  /* yOffset=*/250)
+            toast.setGravity(Gravity.BOTTOM, /* xOffset= */0, /* yOffset=*/250)
             toast.show()
         }
     }
@@ -311,10 +327,10 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         if (mSession == null)
             return
 
-        //! Synchronize here to avoid calling Session.update or Session.acquireCameraImage while paused
+        // Synchronize here to avoid calling Session.update or Session.acquireCameraImage while paused
         synchronized(mFrameImageInUseLock) {
-            //! Notify ARCore session that the view size changed so that the perspective matrix and
-            //! the video background can be properly adjusted
+            // Notify ARCore session that the view size changed so that the perspective matrix and
+            // the video background can be properly adjusted
             mCpuImageDisplayRotationHelper.updateSessionIfNeeded(mSession!!)
 
             try {
@@ -333,9 +349,9 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         }
     }
 
-    //! Demonstrates how to access a CPU image using a download from GPU
+    // Demonstrates how to access a CPU image using a download from GPU
     private fun renderProcessedImageGpuDownload(frame: Frame?) {
-        //! If there is a frame being requested previously, acquire the pixels and process it
+        // If there is a frame being requested previously, acquire the pixels and process it
         if (mGpuDownloadFramebufferIndex >= 0) {
             var image: TextureReaderImage =
                 mTextureReader.acquireFrame(mGpuDownloadFramebufferIndex)
@@ -343,10 +359,10 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             if (image.format != TextureReaderImage.IMAGE_FORMAT_I8)
                 throw IllegalArgumentException("Expected image in I8 format, got format " + image.format)
 
-            //! If you want to post-process image, write code here.
-            //!
+            // If you want to post-process image, write code here.
+            //
 
-            //! You should always release frame buffer after using. Otherwise the next fcall to submitFrame() may fail
+            // You should always release frame buffer after using. Otherwise the next fcall to submitFrame() may fail
             mTextureReader.releaseFrame(mGpuDownloadFramebufferIndex)
 
             mCpuImageRenderer.drawWithCpuImage(
@@ -358,13 +374,13 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
                 mCpuImageDisplayRotationHelper.cameraToDisplayRotation
             )
 
-            //! Measure frame time since last successful execution of drawWithCpuImage()
+            // Measure frame time since last successful execution of drawWithCpuImage()
             cpuImageFrameTimeHelper.nextFrame()
         } else {
             mCpuImageRenderer.drawWithoutCpuImage()
         }
 
-        //! Submit request for the texture from the current frame
+        // Submit request for the texture from the current frame
         mGpuDownloadFramebufferIndex =
             mTextureReader.submitFrame(mCpuImageRenderer.textureId, TEXTURE_WIDTH, TEXTURE_HEIGHT)
     }

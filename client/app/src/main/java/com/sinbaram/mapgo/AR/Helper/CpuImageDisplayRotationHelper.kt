@@ -25,7 +25,6 @@ import android.view.Surface
 import android.view.WindowManager
 import com.google.ar.core.Session
 
-
 /**
  * Helper to track the display rotations. In particular, the 180 degree rotations are not notified
  * by the onSurfaceChanged() callback, and thus they require listening to the android display
@@ -94,7 +93,7 @@ class CpuImageDisplayRotationHelper(private val context: Context) :
                     else -> viewportWidth.toFloat() / viewportHeight.toFloat()
                 }
             return aspectRatio
-        }// Get screen to device rotation in degress.
+        } // Get screen to device rotation in degress.
 
     // Convert degrees to rotation ids.
     /**

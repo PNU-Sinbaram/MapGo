@@ -23,7 +23,6 @@ import com.google.android.material.snackbar.Snackbar
  * limitations under the License.
  */
 
-
 /**
  * Helper to manage the sample snackbar. Hides the Android boilerplate code, and exposes simpler
  * methods.
@@ -95,7 +94,9 @@ class SnackbarHelper {
     }
 
     private fun show(
-        activity: Activity, message: String, dismissBehavior: DismissBehavior
+        activity: Activity,
+        message: String,
+        dismissBehavior: DismissBehavior
     ) {
         activity.runOnUiThread {
             messageSnackbar = Snackbar.make(
@@ -118,9 +119,11 @@ class SnackbarHelper {
                         })
                 }
             }
-            (messageSnackbar!!
-                .view
-                .findViewById<View>(com.google.android.material.R.id.snackbar_text) as TextView).maxLines =
+            (
+                messageSnackbar!!
+                    .view
+                    .findViewById<View>(com.google.android.material.R.id.snackbar_text) as TextView
+                ).maxLines =
                 maxLines
             messageSnackbar!!.show()
         }

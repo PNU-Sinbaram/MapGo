@@ -25,7 +25,6 @@ import java.util.concurrent.BlockingQueue
  * limitations under the License.
  */
 
-
 /**
  * Helper to detect taps using Android GestureDetector, and pass the taps between UI thread and
  * render thread.
@@ -65,6 +64,7 @@ class TapHelper(context: Context?) : OnTouchListener {
                 override fun onDown(e: MotionEvent): Boolean {
                     return true
                 }
-            })
+            }
+        )
     }
 }

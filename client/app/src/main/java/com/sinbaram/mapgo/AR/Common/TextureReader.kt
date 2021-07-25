@@ -19,14 +19,12 @@ import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLES30
+import com.sinbaram.mapgo.AR.Renderer.ShaderUtil
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
-
-import com.sinbaram.mapgo.AR.Renderer.ShaderUtil
-import com.sinbaram.mapgo.AR.Common.TextureReaderImage
 
 /**
  * Helper class for ARCore apps to read camera image from an OpenGL OES texture.
@@ -109,8 +107,8 @@ class TextureReader() {
      */
     @Throws(IOException::class)
     fun create(context: Context?, format: Int, width: Int, height: Int, keepAspectRatio: Boolean) {
-        if (format != TextureReaderImage.IMAGE_FORMAT_RGBA
-            && format != TextureReaderImage.IMAGE_FORMAT_I8
+        if (format != TextureReaderImage.IMAGE_FORMAT_RGBA &&
+            format != TextureReaderImage.IMAGE_FORMAT_I8
         ) {
             throw RuntimeException("Image format not supported.")
         }
@@ -172,11 +170,8 @@ class TextureReader() {
             val status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)
             if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
                 throw RuntimeException(
-                    this
-                        .toString() + ": Failed to set up render buffer with status "
-                            + status
-                            + " and error "
-                            + GLES20.glGetError()
+                    this.toString() + ": Failed to set up render buffer with status " +
+                        status + " and error " + GLES20.glGetError()
                 )
             }
 
