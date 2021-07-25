@@ -12,7 +12,7 @@ interface DirectionClient {
     fun GetDirection(
         @Header("X-NCP-APIGW-API-KEY-ID") id: String,
         @Header("X-NCP-APIGW-API-KEY") secret: String,
-        @Query("start") start : String,
-        @Query("goal") goal : String
+        @Query("start") start: String,
+        @Query("goal") goal: String
     ): Call<Void>
 }
