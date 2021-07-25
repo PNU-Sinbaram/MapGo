@@ -20,11 +20,16 @@ from django.urls import path
 from rest_framework import routers
 
 from checkin.views import CheckinViewSet
+from recommend.views import STCViewSet
 
 router = routers.DefaultRouter()
 router.register('Mapgo/checkin', CheckinViewSet, basename="checkin")
 
+router2 = routers.DefaultRouter()
+router2.register('Mapgo/recommend',STCViewSet,basename='recommend')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('', include(router2.urls)),
 ]
