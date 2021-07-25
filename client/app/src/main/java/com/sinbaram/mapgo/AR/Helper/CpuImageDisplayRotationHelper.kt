@@ -129,8 +129,14 @@ class CpuImageDisplayRotationHelper(private val context: Context) :
             return cameraToScreenRotation
         }
 
-    override fun onDisplayAdded(displayId: Int) {}
-    override fun onDisplayRemoved(displayId: Int) {}
+    override fun onDisplayAdded(displayId: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onDisplayRemoved(displayId: Int) {
+        TODO("Not yet implemented")
+    }
+
     override fun onDisplayChanged(displayId: Int) {
         viewportChanged = true
     }
