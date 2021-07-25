@@ -7,7 +7,8 @@
 [![Stars](https://img.shields.io/github/stars/PNU-Sinbaram/MapGo)](https://github.com/PNU-Sinbaram/MapGo)
 [![Forks](https://img.shields.io/github/forks/PNU-Sinbaram/MapGo)](https://github.com/PNU-Sinbaram/MapGo)
 [![Android github action](https://github.com/PNU-Sinbaram/MapGo/actions/workflows/android-ci.yml/badge.svg?branch=main)](https://github.com/PNU-Sinbaram/MapGo/actions)
-[![Super-Linter](https://github.com/PNU-Sinbaram/MapGo/actions/workflows/linter.yml/badge.svg?branch=main)](https://github.com/PNU-Sinbaram/MapGo/actions)
+[![Client Linter](https://github.com/PNU-Sinbaram/MapGo/actions/workflows/linter-client.yml/badge.svg?branch=main)](https://github.com/PNU-Sinbaram/MapGo/actions)
+[![Server Linter](https://github.com/PNU-Sinbaram/MapGo/actions/workflows/linter-server.yml/badge.svg?branch=main)](https://github.com/PNU-Sinbaram/MapGo/actions)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/a7f32fbc7a6e4048890859549677d53f)](https://www.codacy.com/gh/PNU-Sinbaram/MapGo/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PNU-Sinbaram/MapGo&amp;utm_campaign=Badge_Grade)
 [![Hackathon badge](https://img.shields.io/badge/WIP-SW%20Hackathon%202021-blueviolet)](https://github.com/PNU-Sinbaram/MapGo)
 
