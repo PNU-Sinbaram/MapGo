@@ -2,13 +2,11 @@ package com.sinbaram.mapgo
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
+import android.view.Gravity
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.*
 import com.sinbaram.mapgo.AR.Common.TextureReader
@@ -21,6 +19,7 @@ import java.nio.ByteBuffer
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+
 
 class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     val TAG = MapGoActivity::class.java.simpleName
@@ -189,6 +188,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
             // Default camera config
             mCpuResolution = mMediumCameraConfig
+            onCameraConfigChanged(mCpuResolution)
         }
     }
 
@@ -219,10 +219,42 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         return cameraConfig
     }
 
+    private fun onCameraConfigChanged(cameraConfig: CameraConfig) {
+        // To change the AR camera config - first we pause the AR session, set the desired camera
+        // config and then resume the AR session.
+        if (mSession != null) {
+            // Block here if the image is still being used.
+            synchronized(mFrameImageInUseLock) {
+                mSession!!.pause()
+                mSession!!.cameraConfig = cameraConfig
+                try {
+                    mSession!!.resume()
+                } catch (ex: CameraNotAvailableException) {
+                    mMessageSnackbarHelper.showError(
+                        this,
+                        "Camera not available. Try restarting the app."
+                    )
+                    mSession = null
+                    return
+                }
+            }
+
+            // Let the user know that the camera config is set.
+            val toastMessage = ("Set the camera config with CPU image resolution of "
+                    + cameraConfig.imageSize
+                    + " and fps "
+                    + cameraConfig.fpsRange
+                    + ".")
+            val toast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG)
+            toast.setGravity(Gravity.BOTTOM,  /* xOffset= */0,  /* yOffset=*/250)
+            toast.show()
+        }
+    }
+
     override fun onDestroy() {
         if (mSession != null) {
             // Release native heap memory used by an ARCore session.
-            mSession?.close()
+            mSession!!.close()
             mSession = null
         }
         super.onDestroy()
@@ -311,7 +343,8 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             if (image.format != TextureReaderImage.IMAGE_FORMAT_I8)
                 throw IllegalArgumentException("Expected image in I8 format, got format " + image.format)
 
-            // var processedImageBytesGrayScale : ByteBuffer = edge
+            //! If you want to post-process image, write code here.
+            //!
 
             //! You should always release frame buffer after using. Otherwise the next fcall to submitFrame() may fail
             mTextureReader.releaseFrame(mGpuDownloadFramebufferIndex)
