@@ -13,13 +13,11 @@ import com.google.ar.core.*
 import com.google.ar.core.exceptions.*
 import com.sinbaram.mapgo.AR.Common.TextureReader
 import com.sinbaram.mapgo.AR.Common.TextureReaderImage
-import com.sinbaram.mapgo.AR.Helper.CameraPermissionHelper
-import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
-import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
-import com.sinbaram.mapgo.AR.Helper.TrackingStateHelper
+import com.sinbaram.mapgo.AR.Helper.*
 import com.sinbaram.mapgo.AR.Renderer.CpuImageRenderer
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -30,6 +28,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     lateinit var mBinding: ActivityMapgoBinding
     lateinit var mConfig: Config
     lateinit var mSurfaceView: GLSurfaceView
+    lateinit var mCpuImageDisplayRotationHelper: CpuImageDisplayRotationHelper
 
     lateinit var mCpuResolution: CameraConfig
     lateinit var mLowCameraConfig: CameraConfig
@@ -43,6 +42,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     val mCpuImageRenderer: CpuImageRenderer = CpuImageRenderer()
     val mTrackingStateHelper: TrackingStateHelper = TrackingStateHelper(this)
     val mFrameImageInUseLock: Object = Object()
+    var mGpuDownloadFramebufferIndex = -1
     var mUserRequestedInstall = false
 
     companion object {
@@ -70,6 +70,9 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         //! Bind each view to member variables
         mSurfaceView = mBinding.surfaceView
 
+        //! Initialize Cpu Image display rotation helper
+        mCpuImageDisplayRotationHelper = CpuImageDisplayRotationHelper(this)
+
         //! Setup renderer
         mSurfaceView.preserveEGLContextOnPause = true
         mSurfaceView.setEGLContextClientVersion(2)
@@ -81,8 +84,8 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         lifecycle.addObserver(renderFrameTimeHelper)
         lifecycle.addObserver(cpuImageFrameTimeHelper)
 
-        val view = mBinding.root
-        setContentView(view)
+        //! Pass activity binding root
+        setContentView(mBinding.root)
     }
 
     override fun onResume() {
@@ -142,11 +145,13 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             return
         }
         mSurfaceView.onResume()
+        mCpuImageDisplayRotationHelper.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         if (mSession != null) {
+            mCpuImageDisplayRotationHelper.onPause()
             mSurfaceView.onPause()
             mSession!!.pause()
         }
@@ -215,10 +220,12 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     }
 
     override fun onDestroy() {
+        if (mSession != null) {
+            // Release native heap memory used by an ARCore session.
+            mSession?.close()
+            mSession = null
+        }
         super.onDestroy()
-
-        // Release native heap memory used by an ARCore session.
-        mSession?.close()
     }
 
     override fun onRequestPermissionsResult(
@@ -264,6 +271,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        mCpuImageDisplayRotationHelper.onSurfaceChanged(width, height)
         GLES20.glViewport(0, 0, width, height)
     }
 
@@ -271,7 +279,12 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         if (mSession == null)
             return
 
+        //! Synchronize here to avoid calling Session.update or Session.acquireCameraImage while paused
         synchronized(mFrameImageInUseLock) {
+            //! Notify ARCore session that the view size changed so that the perspective matrix and
+            //! the video background can be properly adjusted
+            mCpuImageDisplayRotationHelper.updateSessionIfNeeded(mSession!!)
+
             try {
                 mSession!!.setCameraTextureName(mCpuImageRenderer.textureId)
                 val frame = mSession!!.update()
@@ -279,6 +292,7 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
                 mTrackingStateHelper.updateKeepScreenOnFlag(camera.trackingState)
                 renderFrameTimeHelper.nextFrame()
+
                 renderProcessedImageGpuDownload(frame)
             } catch (e: Exception) {
                 // Avoid crashing the application due to unhandled exceptions
@@ -287,7 +301,38 @@ class MapGoActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         }
     }
 
+    //! Demonstrates how to access a CPU image using a download from GPU
     private fun renderProcessedImageGpuDownload(frame: Frame?) {
-        // TODO("Not yet implemented")
+        //! If there is a frame being requested previously, acquire the pixels and process it
+        if (mGpuDownloadFramebufferIndex >= 0) {
+            var image: TextureReaderImage =
+                mTextureReader.acquireFrame(mGpuDownloadFramebufferIndex)
+
+            if (image.format != TextureReaderImage.IMAGE_FORMAT_I8)
+                throw IllegalArgumentException("Expected image in I8 format, got format " + image.format)
+
+            // var processedImageBytesGrayScale : ByteBuffer = edge
+
+            //! You should always release frame buffer after using. Otherwise the next fcall to submitFrame() may fail
+            mTextureReader.releaseFrame(mGpuDownloadFramebufferIndex)
+
+            mCpuImageRenderer.drawWithCpuImage(
+                frame,
+                IMAGE_WIDTH,
+                IMAGE_HEIGHT,
+                image.buffer,
+                mCpuImageDisplayRotationHelper.viewportAspectRatio,
+                mCpuImageDisplayRotationHelper.cameraToDisplayRotation
+            )
+
+            //! Measure frame time since last successful execution of drawWithCpuImage()
+            cpuImageFrameTimeHelper.nextFrame()
+        } else {
+            mCpuImageRenderer.drawWithoutCpuImage()
+        }
+
+        //! Submit request for the texture from the current frame
+        mGpuDownloadFramebufferIndex =
+            mTextureReader.submitFrame(mCpuImageRenderer.textureId, TEXTURE_WIDTH, TEXTURE_HEIGHT)
     }
 }
