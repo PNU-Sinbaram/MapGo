@@ -52,6 +52,6 @@ jobs:
         env:
           VALIDATE_KOTLIN: true
           VALIDATE_MARKDOWN: true
-          VALIDATE_PYTHON: true
+          FILTER_REGEX_INCLUDE: client/*
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
