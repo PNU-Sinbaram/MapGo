@@ -12,6 +12,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
+        buildConfigField("String", "SERVER_ADDRESS", apikeyProperties["SERVER_ADDRESS"])
         applicationId "com.sinbaram.mapgo"
         minSdkVersion 24
         targetSdkVersion 30
