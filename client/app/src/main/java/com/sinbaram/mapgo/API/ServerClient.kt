@@ -7,7 +7,8 @@ import retrofit2.http.*
 
 interface ServerClient {
     @Headers("Accept: application/json")
-    @POST("/MapGo/checkin")
+    @POST("Mapgo/checkin/")
+    @FormUrlEncoded
     fun CheckIn(
         @Field("User_ID") userID: String,
         @Field("lat") latitude: Float,
@@ -15,11 +16,11 @@ interface ServerClient {
     ): Call<CheckInLog>
 
     @Headers("Accept: application/json")
-    @GET("/MapGo/checkin")
+    @GET("Mapgo/checkin/")
     fun GetCheckIn(): Call<List<CheckInLog>>
 
     @Headers("Accept: application/json")
-    @GET("/MapGo/recommend")
+    @GET("Mapgo/recommend/")
     fun GetRecommendations(
         @Query("User_ID") userID: String,
         @Query("lat") latitude: Float,
