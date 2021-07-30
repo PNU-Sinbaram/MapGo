@@ -30,10 +30,9 @@ import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.lang.ref.WeakReference
-import java.util.function.Consumer
-import java.util.function.Function
 
-class MapGoActivity : AppCompatActivity(),
+class MapGoActivity :
+    AppCompatActivity(),
     FragmentOnAttachListener,
     BaseArFragment.OnTapArPlaneListener,
     BaseArFragment.OnSessionConfigurationListener,
@@ -56,9 +55,11 @@ class MapGoActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
 
         // Show License text
-        mMessageSnackbarHelper.showMessage(this,
+        mMessageSnackbarHelper.showMessage(
+            this,
             "This application runs on Google Play Services for AR (ARCore), " +
-                    "which is provided by Google LLC and governed by the Google Privacy Policy")
+                "which is provided by Google LLC and governed by the Google Privacy Policy"
+        )
 
         // Binding mapgo activity layout
         mBinding = ActivityMapgoBinding.inflate(layoutInflater)
