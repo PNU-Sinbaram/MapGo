@@ -68,7 +68,7 @@ class MapGoActivity : AppCompatActivity(),
             }
         }
 
-        loadModels()
+        loadModel("https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb")
 
         lifecycle.addObserver(renderFrameTimeHelper)
         lifecycle.addObserver(cpuImageFrameTimeHelper)
@@ -134,12 +134,12 @@ class MapGoActivity : AppCompatActivity(),
         arSceneView.setFrameRateFactor(SceneView.FrameRate.FULL)
     }
 
-    fun loadModels() {
+    fun loadModel(modelUrl: String) {
         val weakActivity: WeakReference<MapGoActivity> = WeakReference(this)
         ModelRenderable.builder()
             .setSource(
                 this,
-                Uri.parse("https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb")
+                Uri.parse(modelUrl)
             )
             .setIsFilamentGltf(true)
             .setAsyncLoadEnabled(true)
