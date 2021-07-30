@@ -7,8 +7,13 @@ from rest_framework.parsers import JSONParser
 from .serializers import CheckinSerializer
 from .models import Checkin
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.core.exceptions import ObjectDoesNotExist
+
 # Create your views here.
 
+@method_decorator(csrf_exempt, name='delete')
 class CheckinViewSet(viewsets.ViewSet):
     def list(self, request):
         checkinList = Checkin.objects.all()
@@ -23,3 +28,11 @@ class CheckinViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
+    def delete(self, request, userid):
+        try:
+            userObject = Checkin.objects.get(User_ID=userid)
+            userObject.delete()
+
+            return Response("Delete : "+userid, status=200)
+        except ObjectDoesNotExist:
+            return Response("User "+userid+" not found.", status=400)
