@@ -55,6 +55,11 @@ class MapGoActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Show License text
+        mMessageSnackbarHelper.showMessage(this,
+            "This application runs on Google Play Services for AR (ARCore), " +
+                    "which is provided by Google LLC and governed by the Google Privacy Policy")
+
         // Binding mapgo activity layout
         mBinding = ActivityMapgoBinding.inflate(layoutInflater)
 
