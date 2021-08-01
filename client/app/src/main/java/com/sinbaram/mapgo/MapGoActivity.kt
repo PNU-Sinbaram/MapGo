@@ -1,5 +1,6 @@
 package com.sinbaram.mapgo
 
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -26,6 +27,11 @@ import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.BaseArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import com.naver.maps.map.LocationTrackingMode
+import com.naver.maps.map.MapFragment
+import com.naver.maps.map.NaverMap
+import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
@@ -36,9 +42,15 @@ class MapGoActivity :
     FragmentOnAttachListener,
     BaseArFragment.OnTapArPlaneListener,
     BaseArFragment.OnSessionConfigurationListener,
-    ArFragment.OnViewCreatedListener {
+    ArFragment.OnViewCreatedListener,
+    OnMapReadyCallback {
     lateinit var mBinding: ActivityMapgoBinding
     lateinit var mArFragment: ArFragment
+
+    // Location
+    private lateinit var mLocationSource: FusedLocationSource
+    private lateinit var mNaverMap: NaverMap
+    private lateinit var mCurrentLocation: Location
 
     var mModel: Renderable? = null
     var mViewRenderable: ViewRenderable? = null
@@ -49,6 +61,7 @@ class MapGoActivity :
 
     companion object {
         val TAG = MapGoActivity::class.java.simpleName
+        val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,8 +92,42 @@ class MapGoActivity :
         lifecycle.addObserver(renderFrameTimeHelper)
         lifecycle.addObserver(cpuImageFrameTimeHelper)
 
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.naverMap) as MapFragment?
+            ?: MapFragment.newInstance().also {
+                supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
+            }
+        mapFragment.getMapAsync(this)
+
+        // Set location source
+        mLocationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+
         // Pass activity binding root
         setContentView(mBinding.root)
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>,
+                                            grantResults: IntArray) {
+        if (mLocationSource.onRequestPermissionsResult(requestCode, permissions,
+                grantResults)) {
+            if (!mLocationSource.isActivated) { // 권한 거부됨
+                mNaverMap.locationTrackingMode = LocationTrackingMode.None
+            }
+            return
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onMapReady(naverMap: NaverMap) {
+        this.mNaverMap = naverMap
+        naverMap.locationSource = mLocationSource
+        naverMap.addOnLocationChangeListener {
+            Toast.makeText(this, "${it.latitude}, ${it.longitude}",
+                Toast.LENGTH_SHORT).show()
+            // Location information tracking here
+            mCurrentLocation = it
+        }
     }
 
     override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
