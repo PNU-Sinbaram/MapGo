@@ -1,11 +1,16 @@
 package com.sinbaram.mapgo
 
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
@@ -43,20 +48,30 @@ class MapGoActivity :
     BaseArFragment.OnTapArPlaneListener,
     BaseArFragment.OnSessionConfigurationListener,
     ArFragment.OnViewCreatedListener,
+    SensorEventListener,
     OnMapReadyCallback {
+    // Activity binding variable
     lateinit var mBinding: ActivityMapgoBinding
+    // Main object for sceneform sdk
     lateinit var mArFragment: ArFragment
+
+    // Sensor related stuffs
+    private lateinit var mSensorManager: SensorManager
+    private val mAccelerometerReading = FloatArray(3)
+    private val mMagnetometerReading = FloatArray(3)
+    private val mRotationMatrix = FloatArray(9)
+    private val mOrientationAngles = FloatArray(3)
 
     // Location
     private lateinit var mLocationSource: FusedLocationSource
     private lateinit var mNaverMap: NaverMap
     private lateinit var mCurrentLocation: Location
 
+    // For sample gltf rendering
     var mModel: Renderable? = null
     var mViewRenderable: ViewRenderable? = null
 
-    val renderFrameTimeHelper: FrameTimeHelper = FrameTimeHelper()
-    val cpuImageFrameTimeHelper: FrameTimeHelper = FrameTimeHelper()
+    // Snackbar message popping helper
     val mMessageSnackbarHelper: SnackbarHelper = SnackbarHelper()
 
     companion object {
@@ -87,16 +102,18 @@ class MapGoActivity :
             }
         }
 
+        // Load sample gltf model for test rendernig
         loadModel("https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb")
 
-        lifecycle.addObserver(renderFrameTimeHelper)
-        lifecycle.addObserver(cpuImageFrameTimeHelper)
-
+        // Pass naverMap FragmentLayout to naver maps sdk and connect listener
         val mapFragment = supportFragmentManager.findFragmentById(R.id.naverMap) as MapFragment?
             ?: MapFragment.newInstance().also {
                 supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
             }
         mapFragment.getMapAsync(this)
+
+        // Set Sensor manager of this device
+        mSensorManager = getSystemService()!!
 
         // Set location source
         mLocationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
@@ -105,6 +122,25 @@ class MapGoActivity :
         setContentView(mBinding.root)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Connect magnetic field sensor (나침반)
+        mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.also {
+            mSensorManager.registerListener(
+                this,
+                it,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
+        // Connect accelerometer sensor
+        mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.also {
+            mSensorManager.registerListener(
+                this,
+                it,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
+    }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
@@ -120,14 +156,40 @@ class MapGoActivity :
     }
 
     override fun onMapReady(naverMap: NaverMap) {
+        // If naver map is ready, assign in to member variable
         this.mNaverMap = naverMap
         naverMap.locationSource = mLocationSource
+        // Add gps location tracking listener
         naverMap.addOnLocationChangeListener {
             Toast.makeText(this, "${it.latitude}, ${it.longitude}",
                 Toast.LENGTH_SHORT).show()
             // Location information tracking here
             mCurrentLocation = it
         }
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event == null) {
+            return
+        }
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, mAccelerometerReading, 0, mAccelerometerReading.size)
+        } else if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, mMagnetometerReading, 0, mMagnetometerReading.size)
+        }
+
+        // Update rotation matrix, which is needed to update orientation angles.
+        SensorManager.getRotationMatrix(
+            mRotationMatrix,
+            null,
+            mAccelerometerReading,
+            mMagnetometerReading
+        )
+        SensorManager.getOrientation(mRotationMatrix, mOrientationAngles)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+
     }
 
     override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
