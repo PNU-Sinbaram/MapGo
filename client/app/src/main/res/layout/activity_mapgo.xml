@@ -13,9 +13,8 @@
         android:layout_width="fill_parent"
         android:layout_height="360dp" />
 
-    <fragment
+    <FrameLayout
         android:id="@+id/naverMap"
-        android:name="com.naver.maps.map.MapFragment"
         android:layout_width="fill_parent"
         android:layout_height="360dp"
         android:layout_weight="1" />
