@@ -1,5 +1,6 @@
 package com.sinbaram.mapgo
 
+import android.graphics.PointF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -7,6 +8,7 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -32,11 +34,16 @@ import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.BaseArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
+import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import com.naver.maps.map.Symbol
 import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
@@ -104,10 +111,21 @@ class MapGoActivity :
 
         // Load sample gltf model for test rendernig
         loadModel("https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb")
-
         // Pass naverMap FragmentLayout to naver maps sdk and connect listener
         val mapFragment = supportFragmentManager.findFragmentById(R.id.naverMap) as MapFragment?
-            ?: MapFragment.newInstance().also {
+            ?: MapFragment.newInstance(
+                NaverMapOptions()
+                    .scaleBarEnabled(false)
+                    .zoomControlEnabled(false)
+                    .zoomGesturesEnabled(false)
+                    .rotateGesturesEnabled(false)
+                    .scrollGesturesEnabled(false)
+                    .stopGesturesEnabled(false)
+                    .tiltGesturesEnabled(false)
+                    .compassEnabled(true)
+                    .minZoom(17.0)
+                    .maxZoom(17.0)
+            ).also {
                 supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
             }
         mapFragment.getMapAsync(this)
@@ -165,7 +183,19 @@ class MapGoActivity :
                 Toast.LENGTH_SHORT).show()
             // Location information tracking here
             mCurrentLocation = it
+            // Move camera to there
+            naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
+            // Search nearby places
+            collectNearbySymbols(mCurrentLocation)
         }
+
+        // Set naver map location tracking mode
+        naverMap.locationTrackingMode = LocationTrackingMode.Face
+        mLocationSource.isCompassEnabled = true
+    }
+
+    fun collectNearbySymbols(location: Location) {
+        TODO("Collect nearby symbols and rendering will be implemented")
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
