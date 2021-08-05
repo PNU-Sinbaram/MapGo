@@ -221,6 +221,10 @@ class MapGoActivity :
                 renderNearbySymbols(mCurrentLocation)
             }
         }
+
+        // Set naver map location tracking mode
+        naverMap.locationTrackingMode = LocationTrackingMode.Face
+        mLocationSource.isCompassEnabled = true
     }
 
     /**
