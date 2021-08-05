@@ -165,11 +165,16 @@ class MapGoActivity :
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
-        if (mLocationSource.onRequestPermissionsResult(requestCode, permissions,
-                grantResults)) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (
+            mLocationSource.onRequestPermissionsResult(
+                requestCode, permissions, grantResults
+            )
+        ) {
             if (!mLocationSource.isActivated) { // 권한 거부됨
                 mNaverMap.locationTrackingMode = LocationTrackingMode.None
             }
@@ -184,8 +189,10 @@ class MapGoActivity :
         naverMap.locationSource = mLocationSource
         // Add gps location tracking listener
         naverMap.addOnLocationChangeListener {
-            Toast.makeText(this, "${it.latitude}, ${it.longitude}",
-                Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this, "${it.latitude}, ${it.longitude}",
+                Toast.LENGTH_SHORT
+            ).show()
             // Location information tracking here
             mCurrentLocation = it
             // Move camera to there
@@ -210,7 +217,7 @@ class MapGoActivity :
         // Query nearby symbols
         val symbols = mutableListOf<Symbol>()
         mNaverMap.pickAll(cameraPos, NEARBY_RADIUS).forEach {
-            when(it) {
+            when (it) {
                 is Symbol -> symbols.add(it)
             }
         }
