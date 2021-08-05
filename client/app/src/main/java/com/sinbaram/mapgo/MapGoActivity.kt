@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
@@ -26,6 +27,7 @@ import com.google.ar.sceneform.ArSceneView
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.SceneView
 import com.google.ar.sceneform.Sceneform
+import com.google.ar.sceneform.math.Quaternion.lookRotation
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.EngineInstance
 import com.google.ar.sceneform.rendering.ModelRenderable
@@ -41,11 +43,15 @@ import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.Symbol
+import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
+import com.sinbaram.mapgo.AR.Helper.TransformHelper
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.lang.ref.WeakReference
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 class MapGoActivity :
     AppCompatActivity(),
@@ -74,7 +80,6 @@ class MapGoActivity :
 
     // For sample gltf rendering
     var mModel: Renderable? = null
-    var mViewRenderable: ViewRenderable? = null
 
     // Snackbar message popping helper
     val mMessageSnackbarHelper: SnackbarHelper = SnackbarHelper()
@@ -83,6 +88,7 @@ class MapGoActivity :
         val TAG = MapGoActivity::class.java.simpleName
         val LOCATION_PERMISSION_REQUEST_CODE = 1000
         val NEARBY_RADIUS = 300
+        val NEARBY_RADIUS_WORLD_COORD = 3.0f
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,22 +199,40 @@ class MapGoActivity :
         mLocationSource.isCompassEnabled = true
     }
 
+    /**
+     * @param location : center location of nearby radius
+     * rendering nearby symbols with given location
+     */
     fun renderNearbySymbols(location: Location) {
         // Transform given location information to screen position
         val cameraPos: PointF = mNaverMap.projection.toScreenLocation(LatLng(location))
 
         // Query nearby symbols
-        var symbols = mutableListOf<Symbol>()
+        val symbols = mutableListOf<Symbol>()
         mNaverMap.pickAll(cameraPos, NEARBY_RADIUS).forEach {
             when(it) {
                 is Symbol -> symbols.add(it)
             }
         }
 
-        // Render each symbol withit queried symbols
-        symbols.forEach {
+        // Build renderables with queried symbols
+        symbols.forEach { symbol: Symbol ->
             // Do rendering symbols here
-            Log.d(TAG, it.caption)
+            Log.d(TAG, symbol.caption)
+
+            // Calculate degree between current location to symbol location
+            val targetLocation = Location("")
+            targetLocation.latitude = symbol.position.latitude
+            targetLocation.longitude = symbol.position.longitude
+            val degree = (360 - TransformHelper.calculateBearing(mCurrentLocation, targetLocation))
+
+            // Transform euler degree to world coordinates
+            val y = 0.0f
+            val x = (NEARBY_RADIUS_WORLD_COORD * cos(PI * NEARBY_RADIUS_WORLD_COORD / 180)).toFloat()
+            val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
+
+            // Rendering text symbol with calculated world position
+            renderTextSymbol(x, y, z, symbol.caption)
         }
     }
 
@@ -233,7 +257,7 @@ class MapGoActivity :
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-
+        // Do nothing here
     }
 
     override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
@@ -267,7 +291,6 @@ class MapGoActivity :
         titleNode.setParent(model)
         titleNode.isEnabled = false
         titleNode.localPosition = Vector3(0.0f, 1.0f, 0.0f)
-        titleNode.renderable = mViewRenderable
         titleNode.isEnabled = true
     }
 
@@ -291,6 +314,33 @@ class MapGoActivity :
 
         // Fine adjust the maximum frame rate
         arSceneView.setFrameRateFactor(SceneView.FrameRate.FULL)
+    }
+
+    fun renderTextSymbol(x: Float, y: Float, z: Float, text: String) {
+        val weakActivity: WeakReference<MapGoActivity> = WeakReference(this)
+        ViewRenderable.builder()
+            .setView(this, R.layout.building_detail)
+            .build()
+            .thenAccept { viewRenderable: ViewRenderable ->
+                val textView = viewRenderable.view.findViewById<TextView>(R.id.viewText)
+                textView.text = text
+
+                val node = AnchorNode()
+                node.renderable = viewRenderable
+                mArFragment.arSceneView.scene.addChild(node)
+                node.worldPosition = Vector3(x, y, z)
+
+                val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
+                val direction = Vector3.subtract(cameraPos, node.worldPosition)
+                val lookRotation = lookRotation(direction, Vector3.up())
+                node.worldRotation = lookRotation
+            }
+            .exceptionally { throwable: Throwable? ->
+                Toast.makeText(
+                    this, "Unable to load model", Toast.LENGTH_LONG
+                ).show()
+                null
+            }
     }
 
     fun loadModel(modelUrl: String) {
