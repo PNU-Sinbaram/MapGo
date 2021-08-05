@@ -41,10 +41,8 @@ import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.Symbol
-import com.sinbaram.mapgo.AR.Helper.FrameTimeHelper
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.lang.ref.WeakReference
@@ -84,6 +82,7 @@ class MapGoActivity :
     companion object {
         val TAG = MapGoActivity::class.java.simpleName
         val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        val NEARBY_RADIUS = 300
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -186,7 +185,7 @@ class MapGoActivity :
             // Move camera to there
             naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
             // Search nearby places
-            collectNearbySymbols(mCurrentLocation)
+            renderNearbySymbols(mCurrentLocation)
         }
 
         // Set naver map location tracking mode
@@ -194,8 +193,23 @@ class MapGoActivity :
         mLocationSource.isCompassEnabled = true
     }
 
-    fun collectNearbySymbols(location: Location) {
-        TODO("Collect nearby symbols and rendering will be implemented")
+    fun renderNearbySymbols(location: Location) {
+        // Transform given location information to screen position
+        val cameraPos: PointF = mNaverMap.projection.toScreenLocation(LatLng(location))
+
+        // Query nearby symbols
+        var symbols = mutableListOf<Symbol>()
+        mNaverMap.pickAll(cameraPos, NEARBY_RADIUS).forEach {
+            when(it) {
+                is Symbol -> symbols.add(it)
+            }
+        }
+
+        // Render each symbol withit queried symbols
+        symbols.forEach {
+            // Do rendering symbols here
+            Log.d(TAG, it.caption)
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
