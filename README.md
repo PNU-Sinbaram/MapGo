@@ -10,6 +10,28 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/a7f32fbc7a6e4048890859549677d53f)](https://www.codacy.com/gh/PNU-Sinbaram/MapGo/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PNU-Sinbaram/MapGo&amp;utm_campaign=Badge_Grade)
 [![Hackathon badge](https://img.shields.io/badge/WIP-SW%20Hackathon%202021-blueviolet)](https://github.com/PNU-Sinbaram/MapGo)
 
+## Client Build Guide
+
+Before build client app, you need to create `apikey.properties` file in client
+directory and fill it with your own secret key pairs.
+
+Here is quick commands for key file generation
+```bash
+echo "SERVER_ID_ADDRESS=${YOUR_SERVER_ADDRESS}
+NAVER_KEY_ID=${YOUR_NAVER_API_KEY_ID}
+NAVER_SECRET_KEY=${YOUR_NAVER_API_SECRET_KEY}" >> ./client/apikey.properties
+```
+
+After generate key file, you can build MapGo application using below commands
+```bash
+cd client
+bash ./gradlew assembleDebug --stacktrace
+```
+
+## Server Build Guide
+
+TBA
+
 ## Figma
 ![image](https://user-images.githubusercontent.com/24654975/124858409-f45bdd80-dfe8-11eb-9805-fd11302c2b8e.png)
 
