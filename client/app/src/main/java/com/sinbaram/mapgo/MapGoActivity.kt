@@ -54,6 +54,11 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * Main activity of this application
+ * This activity collect symbols from naver map sdk and
+ * rendering them using SceneForm SDK
+ */
 class MapGoActivity :
     AppCompatActivity(),
     FragmentOnAttachListener,
@@ -342,6 +347,7 @@ class MapGoActivity :
         arSceneView.setFrameRateFactor(SceneView.FrameRate.FULL)
     }
 
+    /** Create symbol node with given informations */
     fun createSymbolNode(x: Float, y: Float, z: Float, text: String): AnchorNode {
         val anchorNode = AnchorNode()
         anchorNode.worldPosition = Vector3(x, y, z)
@@ -367,6 +373,7 @@ class MapGoActivity :
         return anchorNode
     }
 
+    /** Create model renderable from gltf model URL and view renderable in advance */
     fun loadModel(modelUrl: String) {
         val weakActivity: WeakReference<MapGoActivity> = WeakReference(this)
         ModelRenderable.builder()
