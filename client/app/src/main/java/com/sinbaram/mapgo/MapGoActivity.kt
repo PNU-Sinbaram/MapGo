@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
@@ -110,7 +109,7 @@ class MapGoActivity :
         mMessageSnackbarHelper.showMessage(
             this,
             "This application runs on Google Play Services for AR (ARCore), " +
-                "which is provided by Google LLC and governed by the Google Privacy Policy"
+                    "which is provided by Google LLC and governed by the Google Privacy Policy"
         )
 
         // Binding mapgo activity layout
