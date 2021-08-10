@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
@@ -47,11 +46,15 @@ import com.naver.maps.map.Symbol
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.AR.Helper.TransformHelper
+import com.sinbaram.mapgo.Model.SymbolRenderable
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import java.lang.ref.WeakReference
+import java.util.function.Consumer
+import java.util.function.Function
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+
 
 class MapGoActivity :
     AppCompatActivity(),
@@ -63,6 +66,7 @@ class MapGoActivity :
     OnMapReadyCallback {
     // Activity binding variable
     lateinit var mBinding: ActivityMapgoBinding
+
     // Main object for sceneform sdk
     lateinit var mArFragment: ArFragment
 
@@ -79,7 +83,9 @@ class MapGoActivity :
     private lateinit var mCurrentLocation: Location
 
     // For sample gltf rendering
-    var mModel: Renderable? = null
+    var mModelRenderable: Renderable? = null
+    var mSymbolRenderable: ViewRenderable? = null
+    var mSymbolNodes: List<SymbolRenderable> = mutableListOf<SymbolRenderable>()
 
     // Snackbar message popping helper
     val mMessageSnackbarHelper: SnackbarHelper = SnackbarHelper()
@@ -98,7 +104,7 @@ class MapGoActivity :
         mMessageSnackbarHelper.showMessage(
             this,
             "This application runs on Google Play Services for AR (ARCore), " +
-                "which is provided by Google LLC and governed by the Google Privacy Policy"
+                    "which is provided by Google LLC and governed by the Google Privacy Policy"
         )
 
         // Binding mapgo activity layout
@@ -222,25 +228,40 @@ class MapGoActivity :
             }
         }
 
-        // Build renderables with queried symbols
+        // Add symbols with null renderable
+        val symbolNodes = mutableListOf<SymbolRenderable>()
         symbols.forEach { symbol: Symbol ->
-            // Do rendering symbols here
-            Log.d(TAG, symbol.caption)
+            symbolNodes.add(SymbolRenderable(symbol, null))
+        }
 
+        val rootScene = mArFragment.arSceneView.scene
+        // Add new collected nodes to render list
+        symbolNodes.subtract(mSymbolNodes).forEach {
             // Calculate degree between current location to symbol location
             val targetLocation = Location("")
-            targetLocation.latitude = symbol.position.latitude
-            targetLocation.longitude = symbol.position.longitude
+            targetLocation.latitude = it.symbol.position.latitude
+            targetLocation.longitude = it.symbol.position.longitude
             val degree = (360 - TransformHelper.calculateBearing(mCurrentLocation, targetLocation))
 
             // Transform euler degree to world coordinates
             val y = 0.0f
-            val x = (NEARBY_RADIUS_WORLD_COORD * cos(PI * NEARBY_RADIUS_WORLD_COORD / 180)).toFloat()
+            val x =
+                (NEARBY_RADIUS_WORLD_COORD * cos(PI * NEARBY_RADIUS_WORLD_COORD / 180)).toFloat()
             val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
 
-            // Rendering text symbol with calculated world position
-            renderTextSymbol(x, y, z, symbol.caption)
+            // Add new renderable node
+            it.anchor = createSymbolNode(x, y, z, it.symbol.caption)
+            rootScene.addChild(it.anchor)
         }
+
+        // Remove collected nodes outside radius
+        mSymbolNodes.subtract(symbolNodes).forEach {
+            if (it.anchor != null)
+                rootScene.removeChild(it.anchor!!)
+        }
+
+        // Swap old node list to new one
+        mSymbolNodes = symbolNodes
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -277,7 +298,7 @@ class MapGoActivity :
     }
 
     override fun onTapPlane(hitResult: HitResult?, plane: Plane?, motionEvent: MotionEvent?) {
-        if (mModel == null) {
+        if (mModelRenderable == null) {
             mMessageSnackbarHelper.showMessage(this, "Loading..." + Toast.LENGTH_SHORT)
             return
         }
@@ -290,7 +311,7 @@ class MapGoActivity :
         // Create the transformable model and add it to the anchor.
         val model = TransformableNode(mArFragment.getTransformationSystem())
         model.setParent(anchorNode)
-        model.setRenderable(mModel)
+        model.setRenderable(mModelRenderable)
             .animate(true).start()
         model.select()
 
@@ -323,31 +344,29 @@ class MapGoActivity :
         arSceneView.setFrameRateFactor(SceneView.FrameRate.FULL)
     }
 
-    fun renderTextSymbol(x: Float, y: Float, z: Float, text: String) {
-        val weakActivity: WeakReference<MapGoActivity> = WeakReference(this)
-        ViewRenderable.builder()
-            .setView(this, R.layout.building_detail)
-            .build()
-            .thenAccept { viewRenderable: ViewRenderable ->
-                val textView = viewRenderable.view.findViewById<TextView>(R.id.viewText)
-                textView.text = text
+    fun createSymbolNode(x: Float, y: Float, z: Float, text: String): AnchorNode {
+        val anchorNode = AnchorNode()
+        anchorNode.worldPosition = Vector3(x, y, z)
+        val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
+        val direction = Vector3.subtract(cameraPos, anchorNode.worldPosition)
+        val lookRotation = lookRotation(direction, Vector3.up())
+        anchorNode.worldRotation = lookRotation
 
-                val node = AnchorNode()
-                node.renderable = viewRenderable
-                mArFragment.arSceneView.scene.addChild(node)
-                node.worldPosition = Vector3(x, y, z)
+        // Create the transformable model and add it to the anchor.
+        val model = TransformableNode(mArFragment.getTransformationSystem())
+        model.setParent(anchorNode)
+        model.setRenderable(mModelRenderable)
+            .animate(true).start()
+        model.select()
 
-                val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
-                val direction = Vector3.subtract(cameraPos, node.worldPosition)
-                val lookRotation = lookRotation(direction, Vector3.up())
-                node.worldRotation = lookRotation
-            }
-            .exceptionally { throwable: Throwable? ->
-                Toast.makeText(
-                    this, "Unable to load model", Toast.LENGTH_LONG
-                ).show()
-                null
-            }
+        val titleNode = Node()
+        titleNode.setParent(model)
+        titleNode.isEnabled = false
+        titleNode.localPosition = Vector3(0.0f, 1.0f, 0.0f)
+        titleNode.setRenderable(mSymbolRenderable)
+        titleNode.isEnabled = true
+
+        return anchorNode
     }
 
     fun loadModel(modelUrl: String) {
@@ -363,7 +382,7 @@ class MapGoActivity :
             .thenAccept { model: ModelRenderable ->
                 val activity: MapGoActivity? = weakActivity.get()
                 if (activity != null) {
-                    activity.mModel = model
+                    activity.mModelRenderable = model
                 }
             }
             .exceptionally { throwable: Throwable? ->
@@ -372,5 +391,18 @@ class MapGoActivity :
                 ).show()
                 null
             }
+        ViewRenderable.builder()
+            .setView(this, R.layout.building_detail)
+            .build()
+            .thenAccept(Consumer { viewRenderable: ViewRenderable ->
+                val activity: MapGoActivity? = weakActivity.get()
+                if (activity != null) {
+                    activity.mSymbolRenderable = viewRenderable
+                }
+            })
+            .exceptionally(Function<Throwable, Void?> { throwable: Throwable? ->
+                Toast.makeText(this, "Unable to load model", Toast.LENGTH_LONG).show()
+                null
+            })
     }
 }
