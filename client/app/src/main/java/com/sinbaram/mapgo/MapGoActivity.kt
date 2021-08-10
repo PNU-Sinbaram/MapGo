@@ -8,7 +8,6 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -54,7 +53,6 @@ import java.util.function.Function
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 class MapGoActivity :
     AppCompatActivity(),
@@ -104,7 +102,7 @@ class MapGoActivity :
         mMessageSnackbarHelper.showMessage(
             this,
             "This application runs on Google Play Services for AR (ARCore), " +
-                    "which is provided by Google LLC and governed by the Google Privacy Policy"
+                "which is provided by Google LLC and governed by the Google Privacy Policy"
         )
 
         // Binding mapgo activity layout
@@ -394,15 +392,19 @@ class MapGoActivity :
         ViewRenderable.builder()
             .setView(this, R.layout.building_detail)
             .build()
-            .thenAccept(Consumer { viewRenderable: ViewRenderable ->
-                val activity: MapGoActivity? = weakActivity.get()
-                if (activity != null) {
-                    activity.mSymbolRenderable = viewRenderable
+            .thenAccept(
+                Consumer { viewRenderable: ViewRenderable ->
+                    val activity: MapGoActivity? = weakActivity.get()
+                    if (activity != null) {
+                        activity.mSymbolRenderable = viewRenderable
+                    }
                 }
-            })
-            .exceptionally(Function<Throwable, Void?> { throwable: Throwable? ->
-                Toast.makeText(this, "Unable to load model", Toast.LENGTH_LONG).show()
-                null
-            })
+            )
+            .exceptionally(
+                Function<Throwable, Void?> { throwable: Throwable? ->
+                    Toast.makeText(this, "Unable to load model", Toast.LENGTH_LONG).show()
+                    null
+                }
+            )
     }
 }
