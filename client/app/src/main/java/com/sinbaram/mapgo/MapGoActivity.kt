@@ -212,8 +212,8 @@ class MapGoActivity :
                 // Move camera to there
                 naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
                 // Set camera tracking mode
-                naverMap.locationTrackingMode = LocationTrackingMode.Face
-            }
+                // Print camera location for once for debugging
+                Log.d(TAG, String.format("Symbol(User) location %f, %f", it.latitude, it.longitude))
             // Search nearby places
             renderNearbySymbols(mCurrentLocation)
         }
@@ -255,6 +255,12 @@ class MapGoActivity :
             val x =
                 (NEARBY_RADIUS_WORLD_COORD * cos(PI * NEARBY_RADIUS_WORLD_COORD / 180)).toFloat()
             val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
+
+            // Print Symbol informations for debugging purpose
+            Log.d(TAG, String.format("Symbol(%s), Location(%f, %f), WorldCoord(%f, %f, %f), degree(%f)",
+                it.symbol.caption, it.symbol.position.latitude, it.symbol.position.longitude,
+                x, y, z, degree
+            ))
 
             // Add new renderable node
             it.anchor = createSymbolNode(x, y, z, it.symbol.caption)
