@@ -8,6 +8,7 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -84,6 +85,7 @@ class MapGoActivity :
     private lateinit var mLocationSource: FusedLocationSource
     private lateinit var mNaverMap: NaverMap
     private lateinit var mCurrentLocation: Location
+    private var mCameraFirstMove = true
 
     // For sample gltf rendering
     var mModelRenderable: Renderable? = null
@@ -204,15 +206,17 @@ class MapGoActivity :
             ).show()
             // Location information tracking here
             mCurrentLocation = it
-            // Move camera to there
-            naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
+            // Set camera location and tracking mode only once
+            if (mCameraFirstMove) {
+                mCameraFirstMove = false
+                // Move camera to there
+                naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
+                // Set camera tracking mode
+                naverMap.locationTrackingMode = LocationTrackingMode.Face
+            }
             // Search nearby places
             renderNearbySymbols(mCurrentLocation)
         }
-
-        // Set naver map location tracking mode
-        naverMap.locationTrackingMode = LocationTrackingMode.Face
-        mLocationSource.isCompassEnabled = true
     }
 
     /**
