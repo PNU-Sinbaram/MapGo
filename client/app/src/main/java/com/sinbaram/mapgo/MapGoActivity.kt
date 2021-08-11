@@ -8,6 +8,7 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -220,10 +221,6 @@ class MapGoActivity :
                 renderNearbySymbols(mCurrentLocation)
             }
         }
-
-        // Set naver map location tracking mode
-        naverMap.locationTrackingMode = LocationTrackingMode.Face
-        mLocationSource.isCompassEnabled = true
     }
 
     /**
