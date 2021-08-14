@@ -198,6 +198,8 @@ class MapGoActivity :
         // If naver map is ready, assign in to member variable
         this.mNaverMap = naverMap
         naverMap.locationSource = mLocationSource
+        naverMap.locationTrackingMode = LocationTrackingMode.Face
+
         // Add gps location tracking listener
         naverMap.addOnLocationChangeListener {
             Toast.makeText(
@@ -211,11 +213,13 @@ class MapGoActivity :
                 mCameraFirstMove = false
                 // Move camera to there
                 naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
-                // Set camera tracking mode
+                naverMap.locationTrackingMode = LocationTrackingMode.Face
                 // Print camera location for once for debugging
                 Log.d(TAG, String.format("Symbol(User) location %f, %f", it.latitude, it.longitude))
-            // Search nearby places
-            renderNearbySymbols(mCurrentLocation)
+            } else {
+                // Search nearby places
+                renderNearbySymbols(mCurrentLocation)
+            }
         }
     }
 
