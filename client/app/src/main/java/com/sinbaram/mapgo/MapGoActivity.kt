@@ -252,12 +252,12 @@ class MapGoActivity :
             val targetLocation = Location("")
             targetLocation.latitude = it.symbol.position.latitude
             targetLocation.longitude = it.symbol.position.longitude
-            val degree = (360 - TransformHelper.calculateBearing(mCurrentLocation, targetLocation))
+            val degree = (360 - ((TransformHelper.calculateBearing(mCurrentLocation, targetLocation) + 360) % 360))
 
             // Transform euler degree to world coordinates
             val y = 0.0f
             val x =
-                (NEARBY_RADIUS_WORLD_COORD * cos(PI * NEARBY_RADIUS_WORLD_COORD / 180)).toFloat()
+                (NEARBY_RADIUS_WORLD_COORD * cos(PI * degree / 180)).toFloat()
             val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
 
             // Print Symbol informations for debugging purpose
