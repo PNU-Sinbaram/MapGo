@@ -261,10 +261,14 @@ class MapGoActivity :
             val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
 
             // Print Symbol informations for debugging purpose
-            Log.d(TAG, String.format("Symbol(%s), Location(%f, %f), WorldCoord(%f, %f, %f), degree(%f)",
-                it.symbol.caption, it.symbol.position.latitude, it.symbol.position.longitude,
-                x, y, z, degree
-            ))
+            Log.d(
+                TAG,
+                String.format(
+                    "Symbol(%s), Location(%f, %f), WorldCoord(%f, %f, %f), degree(%f)",
+                    it.symbol.caption, it.symbol.position.latitude, it.symbol.position.longitude,
+                    x, y, z, degree
+                )
+            )
 
             // Add new renderable node
             it.anchor = createSymbolNode(x, y, z, it.symbol.caption)
