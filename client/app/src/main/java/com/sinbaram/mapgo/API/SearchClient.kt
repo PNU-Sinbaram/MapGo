@@ -1,6 +1,7 @@
 package com.sinbaram.mapgo.API
 
 import com.sinbaram.mapgo.Model.BuildingQuery
+import com.sinbaram.mapgo.Model.ImageQuery
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
