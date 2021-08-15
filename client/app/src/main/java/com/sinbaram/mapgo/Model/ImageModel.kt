@@ -7,5 +7,5 @@ data class ImageModel (
     @Json(name = "link") var linkUrl: String,
     @Json(name = "thumbnail") var thumbnail: String,
     @Json(name = "sizeheight") var sizeheight: String,
-    @Json(name = "sizewidth") var sizewidth: String,
-) {}
+    @Json(name = "sizewidth") var sizewidth: String
+)

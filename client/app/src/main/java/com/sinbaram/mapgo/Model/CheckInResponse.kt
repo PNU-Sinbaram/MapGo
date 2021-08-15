@@ -7,4 +7,4 @@ data class CheckInResponse(
     @Json(name = "lat") var latitude: String,
     @Json(name = "long") var longitude: String,
     @Json(name = "timeStamp") var timeStamp: String
-) {}
+)

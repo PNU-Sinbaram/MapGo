@@ -11,4 +11,4 @@ data class BuildingModel(
     @Json(name = "roadAddress") var roadAddress: String,
     @Json(name = "mapx") var mapX: Int,
     @Json(name = "mapy") var mapY: Int,
-) {}
+)

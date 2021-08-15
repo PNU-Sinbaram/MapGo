@@ -7,4 +7,4 @@ data class Recommendation(
     @Json(name = "longitude") var long: Float,
     @Json(name = "lat") var latitude: Float,
     @Json(name = "filtering") var filtering: Int,
-) {}
+)
