@@ -1,4 +1,4 @@
-name: Android CI
+name: Client CI
 
 on:  
   push:
@@ -19,9 +19,11 @@ jobs:
           java-version: 1.8
       - name: Create secret key file
         env:
-          SECRET_KEY: ${{ secrets.MAPGO_KEY }}
+          NAVER_API_SECRET: ${{ secrets.NAVER_API_SECRET }}
+          NAVER_API_ID: ${{ secrets.NAVER_API_ID }}
+          SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
         run: |
-          echo $SECRET_KEY >> ./client/apikey.properties
+          echo -e "SERVER_ADDRESS=${SERVER_ADDRESS}\nNAVER_KEY_ID=${NAVER_API_ID}\nNAVER_SECRET_KEY=${NAVER_API_SECRET}" >> ./client/apikey.properties
       - name: Build debug APK
         run: bash ./gradlew assembleDebug --stacktrace
         working-directory: ./client
@@ -30,3 +32,9 @@ jobs:
         with:
           name: app
           path: ./client/app/build/outputs/apk/debug
+      - name: Unit Testing
+        run: bash ./gradlew test --stacktrace
+        working-directory: ./client
+      - name: Check ktlint Check
+        run: bash ./gradlew ktlintCheck
+        working-directory: ./client
