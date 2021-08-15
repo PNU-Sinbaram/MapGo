@@ -2,13 +2,9 @@ package com.sinbaram.mapgo.AR.Helper
 
 import android.location.Location
 import java.lang.Math.toDegrees
-import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.math.ln
-import kotlin.math.tan
 
 /** Collection of coordinates transformation utilities */
 class TransformHelper {
