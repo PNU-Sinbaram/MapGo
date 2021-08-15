@@ -14,3 +14,8 @@ class STCSerializer(serializers.ModelSerializer):
     class Meta:
         model = STC
         fields = ('id','recommend1','recommend2')
+
+class PlaceRequestSerializer(serializers.ModelSerialier):
+    class Meta:
+        model = PlaceRequestData
+        fields = ('User_ID', 'lat', 'long', 'keywords', 'epsilon')
