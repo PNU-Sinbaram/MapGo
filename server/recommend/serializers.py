@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import STC, PlaceData
+from .models import STC, PlaceData, PlaceRequestData
 
 class PlaceDataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,7 +15,7 @@ class STCSerializer(serializers.ModelSerializer):
         model = STC
         fields = ('id','recommend1','recommend2')
 
-class PlaceRequestSerializer(serializers.ModelSerialier):
+class PlaceRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaceRequestData
         fields = ('User_ID', 'lat', 'long', 'keywords', 'epsilon')
