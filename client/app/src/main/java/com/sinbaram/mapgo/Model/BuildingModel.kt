@@ -2,6 +2,7 @@ package com.sinbaram.mapgo.Model
 
 import com.squareup.moshi.Json
 
+/** Naver building search api model */
 data class BuildingModel(
     @Json(name = "title") var name: String,
     @Json(name = "link") var linkUrl: String,

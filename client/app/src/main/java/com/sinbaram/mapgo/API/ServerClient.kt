@@ -10,17 +10,21 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.Call
 
+/** Collections of naver openapi search interface */
 interface ServerClient {
+    /** Send checkin post request to mapgo server */
     @Headers("Accept: application/json")
     @POST("Mapgo/checkin/")
     fun CheckIn(
         @Body request: CheckInRequest
     ): Call<CheckInResponse>
 
+    /** Get checkin list for test purpose from mapgo server */
     @Headers("Accept: application/json")
     @GET("Mapgo/checkin/")
     fun GetCheckIn(): Call<List<CheckInResponse>>
 
+    /** Get recommendation list from mapgo server */
     @Headers("Accept: application/json")
     @GET("Mapgo/recommend/")
     fun GetRecommendations(

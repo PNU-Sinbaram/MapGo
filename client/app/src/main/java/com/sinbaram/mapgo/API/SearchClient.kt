@@ -8,6 +8,7 @@ import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Query
 
+/** Collections of naver openapi search interface */
 interface SearchClient {
     /**
      * Search buildings information with given keyword string

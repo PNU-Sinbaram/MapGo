@@ -2,6 +2,7 @@ package com.sinbaram.mapgo.Model
 
 import com.squareup.moshi.Json
 
+/** mapgo server api recommendation response model */
 data class Recommendation(
     @Json(name = "name") var name: String,
     @Json(name = "longitude") var long: Float,

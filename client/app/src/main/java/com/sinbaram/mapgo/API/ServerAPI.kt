@@ -4,6 +4,7 @@ import com.sinbaram.mapgo.BuildConfig
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.Retrofit
 
+/** Retrofit2 singleton instance for mapgo server */
 object ServerAPI {
     var BASE_URL: String = BuildConfig.SERVER_ADDRESS
     var retrofit: Retrofit? = null

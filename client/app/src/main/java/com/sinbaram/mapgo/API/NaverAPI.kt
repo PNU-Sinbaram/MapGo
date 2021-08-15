@@ -3,6 +3,7 @@ package com.sinbaram.mapgo.API
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
+/** Retrofit2 singleton instance for naver api */
 object NaverAPI {
     var NCLOUD_BASE_URL: String = "https://naveropenapi.apigw.ntruss.com/"
     var nCloudRetrofit: Retrofit? = null

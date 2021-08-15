@@ -2,6 +2,7 @@ package com.sinbaram.mapgo.Model
 
 import com.squareup.moshi.Json
 
+/** Naver openapi image search model */
 data class ImageModel(
     @Json(name = "title") var name: String,
     @Json(name = "link") var linkUrl: String,
