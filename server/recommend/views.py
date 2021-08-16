@@ -4,13 +4,15 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from .serializers import PlaceDataSerializer, STCSerializer, PlaceRequestSerializer
-from .models import PlaceData, STC 
+from .serializers import PlaceDataSerializer, PlaceRequestSerializer
+from .serializers import STCSerializer
+from .models import PlaceData, STC
 
 from .recommend1.recommend1 import recommend1
 from .recommend2.recommend2 import recommend2
 
 import json
+
 
 # Create your views here.
 class STCViewSet(viewsets.ModelViewSet):
@@ -27,8 +29,10 @@ class STCViewSet(viewsets.ModelViewSet):
             keywords = requestData['keywords']
             epsilon = requestData['epsilon']
 
-            requestResult1 = recommender1.recommend(latitude, longitude, keywords, epsilon)
-            requestResult2 = recommender2.recommend(UserID, latitude, longitude, epsilon)
+            requestResult1 = recommender1.recommend(latitude, longitude,
+                                                    keywords, epsilon)
+            requestResult2 = recommender2.recommend(UserID, latitude,
+                                                    longitude, epsilon)
 
             result = {"result": requestResult1+requestResult2}
             jsonRequest = json.dumps(result, ensure_ascii=False)

@@ -11,8 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist
 
-# Create your views here.
 
+# Create your views here.
 @method_decorator(csrf_exempt, name='delete')
 class CheckinViewSet(viewsets.ViewSet):
     def list(self, request):
