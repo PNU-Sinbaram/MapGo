@@ -1,12 +1,9 @@
-from django.shortcuts import render
-
+# from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from .serializers import PlaceDataSerializer, PlaceRequestSerializer
-from .serializers import STCSerializer
-from .models import PlaceData, STC
+from .serializers import PlaceRequestSerializer
 
 from .recommend1.recommend1 import recommend1
 from .recommend2.recommend2 import recommend2
