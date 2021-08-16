@@ -4,6 +4,7 @@ from .models import STC, PlaceData, PlaceRequestData
 
 class PlaceDataSerializer(serializers.ModelSerializer):
     class Meta:
+        '''Make serializer for model PlaceData'''
         model = PlaceData
         fields = ('id', 'name', 'long', 'lat', 'filtering')
 
