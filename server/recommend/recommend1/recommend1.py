@@ -2,7 +2,8 @@ class recommend1:
     def __init__(self):
         pass
 
-    def recommend(self, lat, lng, keyword, epsilon):
+    @classmethod
+    def recommend(lat, lng, keyword, epsilon):
         '''
         Returns list of place recommendation using local alignment.
 

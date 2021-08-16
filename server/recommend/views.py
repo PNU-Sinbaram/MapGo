@@ -13,6 +13,7 @@ import json
 
 # Create your views here.
 class STCViewSet(viewsets.ModelViewSet):
+    @classmethod
     def list(self, request):
         recommender1 = recommend1()
         recommender2 = recommend2()

@@ -2,7 +2,8 @@ class recommend2:
     def __init__(self):
         pass
 
-    def recommend(self, UserID, lat, long, epsilon):
+    @classmethod
+    def recommend(UserID, lat, long, epsilon):
         '''
         Returns list of place recommendation using NCF.
 

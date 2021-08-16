@@ -14,11 +14,13 @@ from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 @method_decorator(csrf_exempt, name='delete')
 class CheckinViewSet(viewsets.ViewSet):
+    @classmethod
     def list(self, request):
         checkinList = Checkin.objects.all()
         serializer = CheckinSerializer(checkinList, many=True)
         return Response(serializer.data, status=200)
 
+    @classmethod
     def create(self, request):
         requestData = JSONParser().parse(request)
         serializer = CheckinSerializer(data=requestData)
@@ -27,6 +29,7 @@ class CheckinViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
+    @classmethod
     def delete(self, request, userid):
         try:
             userObject = Checkin.objects.get(User_ID=userid)
