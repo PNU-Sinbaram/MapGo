@@ -10,7 +10,7 @@ class PlaceData(models.Model):
     filtering = models.IntegerField()
 
     def __str__(self):
-        '''returns model PlaceData's name'''
+        """Returns model PlaceData's name."""
         return self.name
 
 

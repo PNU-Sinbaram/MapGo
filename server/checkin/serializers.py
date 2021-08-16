@@ -4,6 +4,7 @@ from .models import Checkin
 
 class CheckinSerializer(serializers.ModelSerializer):
     class Meta:
-        '''Create serializer for model Checkin'''
+
+        """Create serializer for model Checkin"""
         model = Checkin
         fields = ('User_ID', 'lat', 'long', 'timeStamp')
