@@ -10,12 +10,9 @@ from googletrans import Translator
 
 class recommend1 :
     def __init__(self):
-        #self.lat = 35.15535902264885
-        #self.lng = 129.0638945586259
         self.radius = 100
         self.key = config.api_key
 
-    #def get_info(self):
     def call_api(self, lat, lng):
         url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"\
                    +"location="+str(lat)+","+str(lng)\
@@ -29,7 +26,6 @@ class recommend1 :
 
         if(rescode == 200):
             response_body = response.read()
-            #print(response_body.decode('utf-8'))
             return(response_body.decode('utf-8'))
         else:
             print("Error Code:" + rescode)
@@ -47,7 +43,6 @@ class recommend1 :
 
         if(rescode == 200):
             response_body = response.read()
-            #print(response_body.decode('utf-8'))
             return(response_body.decode('utf-8'))
         else:
             print("Error Code:" + rescode)
@@ -106,10 +101,8 @@ class recommend1 :
 
         for x in range(len(places_info)) :
             place_key = places_info[x][1]
-            #print(place_key)
             review_result = self.call_review(place_key)
             reviews = self.json2list(review_result)
-            #print(reviews['result'])
             alig_max = 0
             for y in range(len(reviews['result'])) :
                 try :
@@ -120,7 +113,6 @@ class recommend1 :
                     break
             places_info[x].insert(0,alig_max)
         places_info.sort(reverse = True)
-        #print(places_info)
 
         while(len(filtering_result) < 5) :
             try :
@@ -131,10 +123,3 @@ class recommend1 :
 
         return(filtering_result)
             
-    #def list2json(self, li):
-    #def send_result(self):
-        
-        
-'''if(__name__ == "__main__"):
-    rc = recommend1()
-    print(rc.recommend(35.15535902264885,129.0638945586259,"카페",3))'''
