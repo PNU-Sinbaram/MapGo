@@ -5,6 +5,7 @@ import sys
 import urllib.request
 import json
 import random
+import config
 from googletrans import Translator
 
 class recommend1 :
@@ -12,7 +13,7 @@ class recommend1 :
         #self.lat = 35.15535902264885
         #self.lng = 129.0638945586259
         self.radius = 100
-        self.key = x
+        self.key = config.api_key
 
     #def get_info(self):
     def call_api(self, lat, lng):
