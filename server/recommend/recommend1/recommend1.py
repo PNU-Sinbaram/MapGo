@@ -12,7 +12,7 @@ class recommend1 :
         #self.lat = 35.15535902264885
         #self.lng = 129.0638945586259
         self.radius = 100
-        self.key = "AIzaSyD7L-_Q8r7-03Gz1CeVQ5Udiu6bnmr0Rp4"
+        self.key = x
 
     #def get_info(self):
     def call_api(self, lat, lng):
