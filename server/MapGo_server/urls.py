@@ -22,16 +22,20 @@ from rest_framework import routers
 from checkin.views import CheckinViewSet
 from recommend.views import STCViewSet
 
-router = routers.DefaultRouter()
-router.register('Mapgo/checkin', CheckinViewSet, basename="checkin")
+routers = {
+    "checkin": routers.DefaultRouter(),
+    "recommend": routers.DefaultRouter()
+}
 
-router2 = routers.DefaultRouter()
-router2.register('Mapgo/recommend', STCViewSet, basename='recommend')
+routers["checkin"].register('Mapgo/checkin',
+                            CheckinViewSet, basename='checkin')
+routers["recommend"].register('Mapgo/recommend',
+                              STCViewSet, basename='recommend')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
+    path('', include(routers["checkin"].urls)),
     path('Mapgo/checkin/<str:userid>/',
          CheckinViewSet.as_view({'delete': 'delete'})),
-    path('', include(router2.urls)),
+    path('', include(routers["recommend"].urls)),
 ]
