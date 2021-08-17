@@ -9,4 +9,5 @@ class Checkin(models.Model):
                                         MaxValueValidator(85)])
     long = models.FloatField(validators=[MinValueValidator(-180),
                                          MaxValueValidator(180)])
+    placeName = models.CharField(max_length=50)
     timeStamp = models.DateTimeField(auto_now_add=True)

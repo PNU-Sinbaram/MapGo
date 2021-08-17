@@ -25,6 +25,9 @@ class CheckinViewSet(viewsets.ViewSet):
         requestData = JSONParser().parse(request)
         serializer = CheckinSerializer(data=requestData)
         if serializer.is_valid():
+            if serializer.validated_data.get('placeName', None) is None:
+                print("No placeName input.")
+                return Response("No placeName input.", status=200)
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)

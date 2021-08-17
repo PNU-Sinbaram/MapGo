@@ -7,4 +7,5 @@ class CheckinSerializer(serializers.ModelSerializer):
 
         """Create serializer for model Checkin"""
         model = Checkin
-        fields = ('User_ID', 'lat', 'long', 'timeStamp')
+        fields = ('User_ID', 'lat', 'long', 'placeName', 'timeStamp')
+        extra_kwargs = {'placeName': {'required': False}}
