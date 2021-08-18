@@ -67,7 +67,7 @@ class CheckinViewSet(viewsets.ViewSet):
     @classmethod
     def delete(self, request, userid):
         try:
-            userObject = Checkin.objects.get(User_ID=userid)
+            userObject = Checkin.objects.filter(User_ID=userid)
             userObject.delete()
 
             return Response("Delete : "+userid, status=200)
