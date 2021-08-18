@@ -13,9 +13,29 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
 
+from rest_framework import routers
+
+from checkin.views import CheckinViewSet
+from recommend.views import STCViewSet
+
+routers = {
+    "checkin": routers.DefaultRouter(),
+    "recommend": routers.DefaultRouter()
+}
+
+routers["checkin"].register('Mapgo/checkin',
+                            CheckinViewSet, basename='checkin')
+routers["recommend"].register('Mapgo/recommend',
+                              STCViewSet, basename='recommend')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include(routers["checkin"].urls)),
+    path('Mapgo/checkin/<str:userid>/',
+         CheckinViewSet.as_view({'delete': 'delete'})),
+    path('', include(routers["recommend"].urls)),
 ]
