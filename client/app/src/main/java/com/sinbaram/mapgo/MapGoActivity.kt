@@ -9,7 +9,10 @@ import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
@@ -89,7 +92,6 @@ class MapGoActivity :
 
     // For sample gltf rendering
     var mModelRenderable: Renderable? = null
-    var mSymbolRenderable: ViewRenderable? = null
     var mSymbolNodes: List<SymbolRenderable> = mutableListOf<SymbolRenderable>()
 
     // Snackbar message popping helper
@@ -385,9 +387,24 @@ class MapGoActivity :
         titleNode.setParent(model)
         titleNode.isEnabled = false
         titleNode.localPosition = Vector3(0.0f, 1.0f, 0.0f)
-        titleNode.setRenderable(mSymbolRenderable)
-        titleNode.isEnabled = true
 
+        val newView : View = LayoutInflater.from(this).inflate(R.layout.building_detail, null)
+        newView.findViewById<TextView>(R.id.building_text).setText(text)
+        ViewRenderable.builder()
+            .setView(this, newView)
+            .build()
+            .thenAccept(
+                Consumer { viewRenderable: ViewRenderable ->
+                    titleNode.setRenderable(viewRenderable)
+                    titleNode.isEnabled = true
+                }
+            )
+            .exceptionally(
+                Function<Throwable, Void?> { throwable: Throwable? ->
+                    Toast.makeText(this, "Unable to load model", Toast.LENGTH_LONG).show()
+                    null
+                }
+            )
         return anchorNode
     }
 
@@ -414,22 +431,5 @@ class MapGoActivity :
                 ).show()
                 null
             }
-        ViewRenderable.builder()
-            .setView(this, R.layout.building_detail)
-            .build()
-            .thenAccept(
-                Consumer { viewRenderable: ViewRenderable ->
-                    val activity: MapGoActivity? = weakActivity.get()
-                    if (activity != null) {
-                        activity.mSymbolRenderable = viewRenderable
-                    }
-                }
-            )
-            .exceptionally(
-                Function<Throwable, Void?> { throwable: Throwable? ->
-                    Toast.makeText(this, "Unable to load model", Toast.LENGTH_LONG).show()
-                    null
-                }
-            )
     }
 }
