@@ -47,10 +47,13 @@ class recommend2:
 
         duplicatedColumn = set(df.columns.values.tolist()) & set(locationList)
         recommendResult = df[duplicatedColumn].loc[UserID].sort_values(axis=0, ascending=False)
-        recommendResult = recommendResult[:round(recommendResult.count()*(epsilon/100))]
+        partialIndex = round(recommendResult.count()*(epsilon/100))
+        if partialIndex < 5:
+            partialIndex = 5
+        recommendResult = recommendResult[:partialIndex]
+        recommendResult = recommendResult.sample(n=5).sort_values(axis=0, ascending=False)
         print(recommendResult)
         return([["test3", 11.0, 11.0], ["test4", 22.0, 22.0]])
 
 if __name__ == '__main__':
-    pass
-    recommend2.recommend("target", 35.231480, 129.085178, 30)
+    recommend2.recommend("target", 35.231480, 129.085178, 100)
