@@ -291,7 +291,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-#hide_api_key
+#hide api key
 config.py
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,vim,django,python,visualstudiocode
