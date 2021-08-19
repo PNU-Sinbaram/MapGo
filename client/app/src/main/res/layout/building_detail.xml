@@ -47,7 +47,7 @@
         android:orientation="vertical"
         android:padding="6dp"
         android:textAlignment="center"
-        android:text="sdfasdf"
+        android:text="@string/building_default_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

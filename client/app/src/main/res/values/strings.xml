@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MapGo</string>
+    <string name="building_default_text">Building</string>
 </resources>
