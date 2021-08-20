@@ -15,6 +15,8 @@ android {
         buildConfigField("String", "SERVER_ADDRESS", apikeyProperties["SERVER_ADDRESS"])
         buildConfigField("String", "NAVER_KEY_ID", apikeyProperties["NAVER_KEY_ID"])
         buildConfigField("String", "NAVER_SECRET_KEY", apikeyProperties["NAVER_SECRET_KEY"])
+        buildConfigField("String", "NAVER_OPEN_KEY_ID", apikeyProperties["NAVER_OPEN_KEY_ID"])
+        buildConfigField("String", "NAVER_OPEN_SECRET_KEY", apikeyProperties["NAVER_OPEN_SECRET_KEY"])
         applicationId "com.sinbaram.mapgo"
         minSdkVersion 24
         targetSdkVersion 30
