@@ -22,8 +22,10 @@ jobs:
           NAVER_API_SECRET: ${{ secrets.NAVER_API_SECRET }}
           NAVER_API_ID: ${{ secrets.NAVER_API_ID }}
           SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+          NAVER_OPEN_ID: ${{ secrets.NAVER_OPEN_KEY_ID }}
+          NAVER_OPEN_SECRET: ${{ secrets.NAVER_OPEN_SECRET_KEY }}
         run: |
-          echo -e "SERVER_ADDRESS=${SERVER_ADDRESS}\nNAVER_KEY_ID=${NAVER_API_ID}\nNAVER_SECRET_KEY=${NAVER_API_SECRET}" >> ./client/apikey.properties
+          echo -e "SERVER_ADDRESS=${SERVER_ADDRESS}\nNAVER_KEY_ID=${NAVER_API_ID}\nNAVER_SECRET_KEY=${NAVER_API_SECRET}\nNAVER_OPEN_KEY_ID=${NAVER_OPEN_ID}\nNAVER_OPEN_SECRET_KEY=${NAVER_OPEN_SECRET}" >> ./client/apikey.properties
       - name: Build debug APK
         run: bash ./gradlew assembleDebug --stacktrace
         working-directory: ./client
