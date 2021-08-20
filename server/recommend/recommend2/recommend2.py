@@ -10,8 +10,8 @@ class recommend2:
         """Will be implemented later."""
         pass
 
-    @staticmethod
-    def recommend(UserID, lat, long, epsilon):
+    @classmethod
+    def recommend(cls, UserID, lat, long, epsilon):
         """Returns list of place recommendation using NCF.
 
         Gets nearby place list from argument latitude, longitude using Google Place API,
@@ -30,30 +30,45 @@ class recommend2:
             2-D List : List of recommended place. Each element has place name, latitude, longitude, filtering
         """
 
-        df = pd.read_csv('./recommendTable_'+str(date.today())+'.csv') 
+        fileDirectory = os.path.dirname(__file__)
+        df = pd.read_csv(fileDirectory+'/recommendTable_'+str(date.today())+'.csv') 
         df = df.set_index('Unnamed: 0')
 
-        locationList = []
-        URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-        key = os.environ['GOOGLE_PLACES_KEY']
-        location = str(lat)+','+str(long)
-        params = {'key': key, 'location': location, 'radius': 100, 'language': 'ko'}
-        resp = requests.get(URL, params=params)
+        locationNameList = []
+        locationPosList = []
+        recommendResult = []
+        
+        location = str(lat)+','+str(long) 
+        resp = cls.__getNearby(location)
 
         jsonObject = json.loads(resp.text)
         responseResult = jsonObject.get('results')
         for loc in responseResult:
-            locationList.append(str(loc["vicinity"])+" "+str(loc["name"]))
+            locationNameList.append(str(loc["vicinity"])+" "+str(loc["name"]))
+            locationPosList.append(loc["geometry"]["location"])
+        locationPosList = dict(zip(locationNameList, locationPosList))
 
-        duplicatedColumn = set(df.columns.values.tolist()) & set(locationList)
-        recommendResult = df[duplicatedColumn].loc[UserID].sort_values(axis=0, ascending=False)
-        partialIndex = round(recommendResult.count()*(epsilon/100))
+        duplicatedColumn = set(df.columns.values.tolist()) & set(locationNameList)
+        recommendPlaces = df[duplicatedColumn].loc[UserID].sort_values(axis=0, ascending=False)
+        partialIndex = round(recommendPlaces.count()*(epsilon/100))
         if partialIndex < 5:
             partialIndex = 5
-        recommendResult = recommendResult[:partialIndex]
-        recommendResult = recommendResult.sample(n=5).sort_values(axis=0, ascending=False)
-        print(recommendResult)
-        return([["test3", 11.0, 11.0], ["test4", 22.0, 22.0]])
+        recommendPlaces = recommendPlaces[:partialIndex]
+        recommendPlaces = recommendPlaces.sample(n=5).sort_values(axis=0, ascending=False)
+        for placeName in recommendPlaces.index:
+            recommendResult.append({"name": placeName, 
+                                    "lat": round(locationPosList[placeName]["lat"], 6), 
+                                    "long": round(locationPosList[placeName]["lng"], 6), 
+                                    "filtering": 2})
+
+        return(recommendResult)
+
+    def __getNearby(location):
+        URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+        key = os.environ['GOOGLE_PLACES_KEY']
+        params = {'key': key, 'location': location, 'radius': 100, 'language': 'ko'}
+        response = requests.get(URL, params=params)
+        return response
 
 if __name__ == '__main__':
-    recommend2.recommend("target", 35.231480, 129.085178, 100)
+    print(recommend2.recommend("target", 35.231480, 129.085178, 100))
