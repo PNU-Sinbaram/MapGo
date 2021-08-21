@@ -25,7 +25,7 @@ interface SearchClient {
      * @return List of image information
      */
     @Headers("Accept: application/json")
-    @GET("/v1/search/local.json")
+    @GET("/v1/search/image.json")
     fun SearchImage(
         @Query("query") query: String,
         @Query("display") displayCount: Int,
