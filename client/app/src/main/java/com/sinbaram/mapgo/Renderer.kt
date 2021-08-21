@@ -63,7 +63,7 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
     }
 
     /** Create symbol node with given informations */
-    fun createSymbolNode(x: Float, y: Float, z: Float, text: String): AnchorNode {
+    fun createSymbolNode(x: Float, y: Float, z: Float, view: View): AnchorNode {
         val anchorNode = AnchorNode()
         anchorNode.worldPosition = Vector3(x, y, z)
         val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
@@ -71,22 +71,13 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
         val lookRotation = Quaternion.lookRotation(direction, Vector3.up())
         anchorNode.worldRotation = lookRotation
 
-        // Create the transformable model and add it to the anchor.
-        val model = TransformableNode(mArFragment.getTransformationSystem())
-        model.setParent(anchorNode)
-        model.setRenderable(mModelRenderable)
-            .animate(true).start()
-        model.select()
-
-        val titleNode = Node()
-        titleNode.setParent(model)
+        val titleNode = TransformableNode(mArFragment.getTransformationSystem())
+        titleNode.setParent(anchorNode)
         titleNode.isEnabled = false
         titleNode.localPosition = Vector3(0.0f, 1.0f, 0.0f)
 
-        val newView : View = LayoutInflater.from(mContext).inflate(R.layout.building_detail, null)
-        newView.findViewById<TextView>(R.id.building_text).setText(text)
         ViewRenderable.builder()
-            .setView(mContext, newView)
+            .setView(mContext, view)
             .build()
             .thenAccept(
                 Consumer { viewRenderable: ViewRenderable ->
