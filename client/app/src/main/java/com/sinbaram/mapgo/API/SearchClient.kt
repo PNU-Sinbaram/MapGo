@@ -14,11 +14,8 @@ interface SearchClient {
      * Search buildings information with given keyword string
      * @return List of building information
      */
-    @Headers("Accept: application/json")
     @GET("/v1/search/local.json")
     fun SearchBuilding(
-        @Header("X-Naver-Client-Id") id: String,
-        @Header("X-Naver-Client-Secret") secret: String,
         @Query("query") query: String,
         @Query("display") displayCount: Int
     ): Call<BuildingQuery>
@@ -30,8 +27,6 @@ interface SearchClient {
     @Headers("Accept: application/json")
     @GET("/v1/search/local.json")
     fun SearchImage(
-        @Header("X-Naver-Client-Id") id: String,
-        @Header("X-Naver-Client-Secret") secret: String,
         @Query("query") query: String,
         @Query("display") displayCount: Int,
         @Query("filter") filter: String
