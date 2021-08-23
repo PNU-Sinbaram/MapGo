@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'checkin.apps.CheckinConfig',
     'recommend.apps.RecommendConfig',
+    'sns.apps.SnsConfig',
 ]
 
 MIDDLEWARE = [
