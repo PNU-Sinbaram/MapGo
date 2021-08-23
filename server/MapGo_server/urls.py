@@ -30,15 +30,12 @@ import os
 routers = {
     "checkin": routers.DefaultRouter(),
     "recommend": routers.DefaultRouter(),
-    "sns": routers.DefaultRouter()
 }
 
 routers["checkin"].register('Mapgo/checkin',
                             CheckinViewSet, basename='checkin')
 routers["recommend"].register('Mapgo/recommend',
                               STCViewSet, basename='recommend')
-routers["sns"].register('Mapgo/sns',
-                        UserViewSet, basename='sns')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -46,5 +43,5 @@ urlpatterns = [
     path('Mapgo/checkin/<str:userid>/',
          CheckinViewSet.as_view({'delete': 'delete'})),
     path('', include(routers["recommend"].urls)),
-    path('', include(routers["sns"].urls)),
+    path('Mapgo/sns/', include('sns.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
