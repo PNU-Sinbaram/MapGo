@@ -7,5 +7,5 @@ RUN pip install -r requirements.txt
 
 COPY . .
 WORKDIR server
-CMD ["python3", "manage.py", "runserver", "0:8000"]
+CMD bash -c "python3 manage.py makemigrations && python3 manage.py migrate && 	python3 manage.py runserver 0:8000"
 EXPOSE 8000
