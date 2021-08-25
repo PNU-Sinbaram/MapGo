@@ -18,7 +18,8 @@ class PostImageSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     postImage = PostImageSerializer(many=True, read_only=True)
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Post
-        fields = ('postID', 'content', 'pos_latitude', 'pos_longitude', 'postImage')
+        fields = ('postID', 'content', 'author', 'pos_latitude', 'pos_longitude', 'postImage')
