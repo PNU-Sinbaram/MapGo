@@ -62,13 +62,13 @@ class MapGoActivity :
 
     // ARCore Renderer class
     private lateinit var mRenderer: Renderer
-    private var mSymbolNodes: List<SymbolRenderable> = mutableListOf<SymbolRenderable>()
+    private var mSymbolNodes: List<SymbolRenderable> = mutableListOf()
 
     companion object {
-        val TAG = MapGoActivity::class.java.simpleName
-        val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        val NEARBY_RADIUS = 300
-        val NEARBY_RADIUS_WORLD_COORD = 3.0f
+        val TAG: String = MapGoActivity::class.java.simpleName
+        const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        const val NEARBY_RADIUS = 300
+        const val NEARBY_RADIUS_WORLD_COORD = 3.0f
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
