@@ -282,4 +282,22 @@ class MapGoActivity :
             mRenderer.attachFragment(fragment)
         }
     }
+
+    fun showPopup(v : View){
+        val popup = PopupMenu(this, v)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.mapgo_menu, popup.menu)
+        popup.setOnMenuItemClickListener { menuItem ->
+            when(menuItem.itemId){
+                R.id.menu_new_feed-> {
+
+                }
+                R.id.menu_keyword-> {
+
+                }
+            }
+            true
+        }
+        popup.show()
+    }
 }

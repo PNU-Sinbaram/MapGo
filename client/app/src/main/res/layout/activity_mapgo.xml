@@ -1,23 +1,37 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/mainLayout"
-    tools:context="com.sinbaram.mapgo.MapGoActivity"
-    android:orientation="vertical"
-    android:weightSum="3">
+    android:layout_height="match_parent">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/arFragment"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/mainLayout"
+        tools:context="com.sinbaram.mapgo.MapGoActivity"
+        android:orientation="vertical"
+        android:weightSum="3">
 
-    <FrameLayout
-        android:id="@+id/naverMap"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/arFragment"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2" />
 
-</LinearLayout>
+        <FrameLayout
+            android:id="@+id/naverMap"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/oval_shape"
+        android:contentDescription="@string/menu_icon_desc"
+        android:onClick="showPopup" />
+    
+</FrameLayout>
