@@ -1,4 +1,4 @@
-from .models import User, Post, PostImage, Comment
+from .models import User, Post, PostImage, Comment, Like
 from django.db import models
 from rest_framework import serializers
 
@@ -21,11 +21,18 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('author', 'post', 'content')
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ('post', 'liker')
+
 class PostSerializer(serializers.ModelSerializer):
     postImage = PostImageSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
+    like = LikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
-        fields = ('postID', 'content', 'author', 'comment', 'pos_latitude', 'pos_longitude', 'postImage')
+        fields = ('postID', 'content', 'author', 'comment', 'like', 'pos_latitude', 'pos_longitude', 'postImage')
+

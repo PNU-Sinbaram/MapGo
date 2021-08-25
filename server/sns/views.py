@@ -4,8 +4,8 @@ from rest_framework import viewsets
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from .serializers import UserSerializer, PostSerializer, PostImageSerializer, CommentSerializer
-from .models import User, Post
+from .serializers import UserSerializer, PostSerializer, PostImageSerializer, CommentSerializer, LikeSerializer
+from .models import User, Post, Like
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet):
@@ -75,4 +75,21 @@ class CommentViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
 
+class LikeViewSet(viewsets.ViewSet):
+    def create(self, request, **kwargs):
+        requestData = {"liker": request.POST.get("userID"),
+                       "post": kwargs.get('postID')}
+        likerID = int(requestData["liker"])
+        posts_forcheck = Like.objects.filter(post=kwargs.get("postID"))
+        likerlist = []
+        for post in posts_forcheck:
+            likerlist.append(getattr(post, 'liker'))
 
+        if likerID in likerlist:
+            return Response("User Aleady liked to this post.", status=400)
+
+        serializer = LikeSerializer(data=requestData)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
