@@ -99,12 +99,12 @@ class MapGoActivity :
                 NaverMapOptions()
                     .scaleBarEnabled(false)
                     .rotateGesturesEnabled(false)
-                    .scrollGesturesEnabled(false)
+                    .scrollGesturesEnabled(true)
+                    .zoomControlEnabled(true)
+                    .zoomGesturesEnabled(true)
                     .stopGesturesEnabled(false)
                     .tiltGesturesEnabled(false)
                     .compassEnabled(true)
-                    .minZoom(17.0)
-                    .maxZoom(17.0)
             ).also {
                 supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
             }
