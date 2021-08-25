@@ -1,5 +1,6 @@
 package com.sinbaram.mapgo
 
+import android.content.Intent
 import android.graphics.PointF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -8,12 +9,16 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuInflater
+import android.view.View
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
+import com.google.ar.sceneform.math.Vector3
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
@@ -67,7 +72,7 @@ class MapGoActivity :
     companion object {
         val TAG: String = MapGoActivity::class.java.simpleName
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        const val NEARBY_RADIUS = 300
+        const val NEARBY_RADIUS_MAP_COORD = 300
         const val NEARBY_RADIUS_WORLD_COORD = 3.0f
     }
 
@@ -93,8 +98,6 @@ class MapGoActivity :
             ?: MapFragment.newInstance(
                 NaverMapOptions()
                     .scaleBarEnabled(false)
-                    .zoomControlEnabled(false)
-                    .zoomGesturesEnabled(false)
                     .rotateGesturesEnabled(false)
                     .scrollGesturesEnabled(false)
                     .stopGesturesEnabled(false)
@@ -156,7 +159,7 @@ class MapGoActivity :
 
         // Query nearby symbols
         val symbols = mutableListOf<Symbol>()
-        mNaverMap.pickAll(cameraPos, NEARBY_RADIUS).forEach {
+        mNaverMap.pickAll(cameraPos, NEARBY_RADIUS_MAP_COORD).forEach {
             when (it) {
                 is Symbol -> symbols.add(it)
             }
@@ -195,7 +198,10 @@ class MapGoActivity :
             )
 
             // Add new renderable node
-            it.anchor = mRenderer.createSymbolNode(x, y, z, it.symbol.caption)
+            it.anchor = mRenderer.createAnchor(Vector3(x, y, z))
+            // Create image symbol and attach to anchor
+            mRenderer.createImageSymbol(Vector3(0.0f, 1.0f, 0.0f), it.symbol.caption)
+                .setParent(it.anchor)
             rootScene.addChild(it.anchor)
         }
 

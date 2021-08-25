@@ -2,12 +2,11 @@ package com.sinbaram.mapgo
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
-import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
 import com.google.android.filament.ColorGrading
 import com.google.ar.core.Config
@@ -24,6 +23,13 @@ import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.BaseArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import com.sinbaram.mapgo.API.NaverAPI
+import com.sinbaram.mapgo.API.SearchClient
+import com.sinbaram.mapgo.Model.ImageQuery
+import com.squareup.picasso.Picasso
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.lang.ref.WeakReference
 import java.util.function.Consumer
 
@@ -41,6 +47,10 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
 
     // Application context for control
     val mContext: Context
+
+    companion object {
+        val TAG: String = Renderer::class.java.simpleName
+    }
 
     init {
         // Set context
@@ -63,29 +73,51 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
     }
 
     /** Create symbol node with given informations */
-    fun createSymbolNode(x: Float, y: Float, z: Float, view: View): AnchorNode {
+    fun createAnchor(worldCoord: Vector3): AnchorNode {
         val anchorNode = AnchorNode()
-        anchorNode.worldPosition = Vector3(x, y, z)
+        anchorNode.worldPosition = worldCoord
         val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
         val direction = Vector3.subtract(cameraPos, anchorNode.worldPosition)
         val lookRotation = Quaternion.lookRotation(direction, Vector3.up())
         anchorNode.worldRotation = lookRotation
 
-        val titleNode = TransformableNode(mArFragment.getTransformationSystem())
-        titleNode.setParent(anchorNode)
-        titleNode.isEnabled = false
-        titleNode.localPosition = Vector3(0.0f, 1.0f, 0.0f)
+        return anchorNode
+    }
 
+    fun createImageSymbol(localCoord: Vector3, query: String): Node {
+        val node = Node();
+        node.isEnabled = false
+        node.localPosition = localCoord
+        node.localScale = Vector3(4.0f, 4.0f, 4.0f)
         ViewRenderable.builder()
-            .setView(mContext, view)
+            .setView(mContext, R.layout.building_image)
             .build()
             .thenAccept(
                 Consumer { viewRenderable: ViewRenderable ->
-                    titleNode.setRenderable(viewRenderable)
-                    titleNode.isEnabled = true
+                    val openAPI = NaverAPI.GetOpenAPIClient()!!.create(SearchClient::class.java)
+                    val call : Call<ImageQuery> = openAPI.SearchImage(query, 1, "large")
+                    call.enqueue(object: Callback<ImageQuery> {
+                        override fun onResponse(call: Call<ImageQuery>, response: Response<ImageQuery>) {
+                            if (response.code() == 200) {
+                                val imageView: ImageView = viewRenderable.view as ImageView
+                                Picasso.get()
+                                    .load(response.body()!!.items[0].thumbnail)
+                                    .into(imageView)
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ImageQuery>, t: Throwable) {
+                            Log.d(TAG, "Cannot get image search with query $query")
+                        }
+
+                    })
+
+                    node.setRenderable(viewRenderable)
+                    node.isEnabled = true
                 }
             )
-        return anchorNode
+
+        return node
     }
 
     fun getScene(): Scene {
