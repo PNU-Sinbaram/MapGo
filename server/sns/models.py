@@ -19,3 +19,8 @@ class Post(models.Model):
 class PostImage(models.Model):
     post = models.ForeignKey(Post, related_name="postImage", on_delete=models.CASCADE, db_column='postimage_id')
     post_image = models.ImageField(upload_to='posts')
+
+class Comment(models.Model):
+    author = models.ForeignKey(User, related_name="comment", on_delete=models.CASCADE, db_column='author_comment_id')
+    post = models.ForeignKey(Post, related_name="comment", on_delete=models.CASCADE, db_column="post_comment_id")
+    content = models.CharField(max_length=100)

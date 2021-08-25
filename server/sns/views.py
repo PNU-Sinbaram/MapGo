@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from .serializers import UserSerializer, PostSerializer, PostImageSerializer
+from .serializers import UserSerializer, PostSerializer, PostImageSerializer, CommentSerializer
 from .models import User, Post
 
 # Create your views here.
@@ -23,8 +23,6 @@ class UserViewSet(viewsets.ViewSet):
                        "deviceID": request.POST.get("deviceID"),
                        "username": request.POST.get("username"),
                        "profileImage": request.FILES['profileImage']}
-        print(request.FILES['profileImage'])
-        print(requestData)
         serializer = UserSerializer(data=requestData)
         if serializer.is_valid(): 
             serializer.save()
@@ -37,17 +35,11 @@ class PostViewSet(viewsets.ViewSet):
             queryset = Post.objects.all()
             serializer = PostSerializer(queryset, many=True)
         else:
-            qurey = Post.objects.filter(author=kwargs.get('author'))
-            serializer = PostSerializer(query, many=True)
+            Posts = Post.objects.filter(author=kwargs.get('author'))
+            serializer = PostSerializer(Posts, many=True)
         return Response(serializer.data)
 
     def create(self, request):
-        author_user = UserSerializer(data = User.objects.get(userID=request.POST.get("author")))
-        if author_user.is_valid():
-            print("author valid")
-        else:
-            # return Response(author_user.errors)
-            author_user = author_user.data
         requestData = {"title": request.POST.get("title"),
                        "content": request.POST.get("content"),
                        "pos_latitude": request.POST.get("pos_latitude"),
@@ -55,7 +47,6 @@ class PostViewSet(viewsets.ViewSet):
         postSerializer = PostSerializer(data=requestData)
         if postSerializer.is_valid():
             postSerializer.validated_data['author'] = User.objects.get(userID=request.POST.get("author"))
-            print("valid")
             postSerializer.save()
             for image in request.FILES.getlist("postImage"):
                 requestData_Image = {"post": postSerializer.data["postID"], "post_image": image}
@@ -65,3 +56,23 @@ class PostViewSet(viewsets.ViewSet):
 
             return Response(postSerializer.data, status=200)
         return Response(postSerializer.errors, status=400)
+
+class CommentViewSet(viewsets.ViewSet):
+    def create(self, request, **kwargs):
+        requestData = {"author": request.POST.get("userID"),
+                       "post": kwargs.get('postID'),
+                       "content": request.POST.get("content")}
+        postid = kwargs.get('postID')
+        postquery = Post.objects.get(postID=postid)
+        userquery = User.objects.get(userID=request.POST.get("userID"))
+        serializer = CommentSerializer(data=requestData)
+        if serializer.is_valid():
+            serializer.validated_data['author']=userquery
+            serializer.validated_data['post']=postquery
+            # serializer.validated_data['content']=reqeust.POST.get("content")
+            serializer.save()
+            print("valid")
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+
+
