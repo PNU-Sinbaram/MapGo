@@ -93,3 +93,14 @@ class LikeViewSet(viewsets.ViewSet):
             serializer.save()
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
+    def destroy(self, request, **kwargs):
+        requestData = {"liker": request.POST.get("userID"),
+                       "post": kwargs.get('postID')}
+        likerID = int(requestData["liker"])
+        posts = Like.objects.filter(post=kwargs.get("postID"))
+        posts_liker = posts.filter(liker=likerID)
+        if not posts_liker.exists():
+            return Response(f'Can\'t find post {requestData["post"]} or userID {likerID}.', status=400)
+
+        posts_liker.delete()
+        return Response("deleted.", status=200)
