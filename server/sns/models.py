@@ -25,5 +25,5 @@ class Comment(models.Model):
 
 class Like(models.Model):
     post = models.ForeignKey(Post, related_name="like", on_delete=models.CASCADE, db_column="liked_id")
-    liker = models.IntegerField()
+    liker = models.ForeignKey(User, related_name="like", on_delete=models.CASCADE, db_column='liker_id')
 
