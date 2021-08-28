@@ -11,8 +11,7 @@ class Post(models.Model):
     postID = models.BigAutoField(primary_key=True)
     content = models.CharField(max_length=500)
     author = models.ForeignKey(User, related_name="author", on_delete=models.CASCADE, db_column='author_id')
-    pos_latitude = models.FloatField()
-    pos_longitude = models.FloatField()
+    location = models.JSONField()
     uploadTime = models.DateTimeField(auto_now_add=True)
 
 class PostImage(models.Model):
@@ -27,3 +26,4 @@ class Comment(models.Model):
 class Like(models.Model):
     post = models.ForeignKey(Post, related_name="like", on_delete=models.CASCADE, db_column="liked_id")
     liker = models.IntegerField()
+

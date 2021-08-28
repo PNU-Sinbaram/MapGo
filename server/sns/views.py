@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from .serializers import UserSerializer, PostSerializer, PostImageSerializer, CommentSerializer, LikeSerializer
 from .models import User, Post, Like
 
+import json
+
 # Create your views here.
 class UserViewSet(viewsets.ViewSet):
     def list(self, request, **kwargs):
@@ -42,8 +44,7 @@ class PostViewSet(viewsets.ViewSet):
     def create(self, request):
         requestData = {"title": request.POST.get("title"),
                        "content": request.POST.get("content"),
-                       "pos_latitude": request.POST.get("pos_latitude"),
-                       "pos_longitude": request.POST.get("pos_longitude")}
+                       "location": json.loads(request.POST.get("location"))}
         postSerializer = PostSerializer(data=requestData)
         if postSerializer.is_valid():
             postSerializer.validated_data['author'] = User.objects.get(userID=request.POST.get("author"))
@@ -69,9 +70,7 @@ class CommentViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             serializer.validated_data['author']=userquery
             serializer.validated_data['post']=postquery
-            # serializer.validated_data['content']=reqeust.POST.get("content")
             serializer.save()
-            print("valid")
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
 

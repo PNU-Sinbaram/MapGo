@@ -26,13 +26,18 @@ class LikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = ('post', 'liker')
 
+class LocationSerializer(serializers.Serializer):
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
+
 class PostSerializer(serializers.ModelSerializer):
     postImage = PostImageSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     comment = CommentSerializer(many=True, read_only=True)
     like = LikeSerializer(many=True, read_only=True)
+    location = LocationSerializer()
 
     class Meta:
         model = Post
-        fields = ('postID', 'content', 'author', 'comment', 'like', 'pos_latitude', 'pos_longitude', 'postImage')
+        fields = ('postID', 'content', 'author', 'comment', 'like', 'location', 'postImage')
 
