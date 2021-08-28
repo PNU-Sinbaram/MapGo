@@ -10,26 +10,9 @@ from .models import User, Post, Like
 import json
 
 # Create your views here.
-class UserViewSet(viewsets.ViewSet):
-    def list(self, request, **kwargs):
-        if kwargs.get('userID') is None:
-            queryset = User.objects.all()
-            serializer = UserSerializer(queryset, many=True)
-            return Response(serializer.data, status=200)
-        else:
-            query = User.objects.get(userID=kwargs.get('userID'))
-            serializer = UserSerializer(query)
-            return Response(serializer.data, status=200)
-    def create(self, request):
-        requestData = {"userID": request.POST.get("userID"),
-                       "deviceID": request.POST.get("deviceID"),
-                       "username": request.POST.get("username"),
-                       "profileImage": request.FILES['profileImage']}
-        serializer = UserSerializer(data=requestData)
-        if serializer.is_valid(): 
-            serializer.save()
-            return Response(serializer.data, status=200)
-        return Response(serializer.errors, status=400)
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 class PostViewSet(viewsets.ViewSet):
     def list(self, request, **kwargs):
