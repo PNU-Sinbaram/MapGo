@@ -12,12 +12,11 @@ likeview = LikeViewSet.as_view({
 })
 
 router = routers.DefaultRouter()
-#router.register('user/(?P<userID>\d+)', UserViewSet, basename='user')
-router.register('user', UserViewSet, basename='user')
-router.register('post/(?P<postID>\d+)/comment', CommentViewSet, basename='comment')
-# router.register('post/(?P<postID>\d+)/like', LikeViewSet, basename='like')
-router.register('post/(?P<author>\w+)', PostViewSet, basename = 'post')
-router.register('post', PostViewSet, basename='post')
+router.register(r'user', UserViewSet, basename='user')
+router.register(r'post/(?P<postID>\d+)/comment',
+                CommentViewSet, basename='comment')
+router.register(r'post/(?P<author>\w+)', PostViewSet, basename='post')
+router.register(r'post', PostViewSet, basename='post')
 
 urlpatterns = [
         path('', include(router.urls)),
