@@ -61,13 +61,9 @@ class LikeViewSet(viewsets.ViewSet):
         requestData = {"liker": request.POST.get("userID"),
                        "post": kwargs.get('postID')}
         likerID = int(requestData["liker"])
-        posts_forcheck = Like.objects.filter(post=kwargs.get("postID"))
-        likerlist = []
-        for post in posts_forcheck:
-            print(getattr(post, 'liker'))
-            likerlist.append(getattr(post, 'liker'))
-
-        if likerID in likerlist:
+        posts = Like.objects.filter(post=kwargs.get("postID"))
+        posts_liker = posts.filter(liker=likerID)
+        if posts_liker.exists():
             return Response("User Aleady liked to this post.", status=400)
 
         serializer = LikeSerializer(data=requestData)
