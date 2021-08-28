@@ -25,15 +25,14 @@ class PostViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        requestData = {"title": request.POST.get("title"),
-                       "content": request.POST.get("content"),
+        requestData = {"contents": request.POST.get("contents"),
                        "location": json.loads(request.POST.get("location"))}
         postSerializer = PostSerializer(data=requestData)
         if postSerializer.is_valid():
-            postSerializer.validated_data['author'] = User.objects.get(userID=request.POST.get("author"))
+            postSerializer.validated_data['writer'] = User.objects.get(id=request.POST.get("writer"))
             postSerializer.save()
             for image in request.FILES.getlist("postImage"):
-                requestData_Image = {"post": postSerializer.data["postID"], "post_image": image}
+                requestData_Image = {"post": postSerializer.data["postID"], "image": image}
                 postimageSerializer = PostImageSerializer(data=requestData_Image)
                 if postimageSerializer.is_valid():
                     postimageSerializer.save()
@@ -43,15 +42,15 @@ class PostViewSet(viewsets.ViewSet):
 
 class CommentViewSet(viewsets.ViewSet):
     def create(self, request, **kwargs):
-        requestData = {"author": request.POST.get("userID"),
+        requestData = {"writer": request.POST.get("writer"),
                        "post": kwargs.get('postID'),
-                       "content": request.POST.get("content")}
+                       "contents": request.POST.get("contents")}
         postid = kwargs.get('postID')
         postquery = Post.objects.get(postID=postid)
-        userquery = User.objects.get(userID=request.POST.get("userID"))
+        userquery = User.objects.get(id=request.POST.get("writer"))
         serializer = CommentSerializer(data=requestData)
         if serializer.is_valid():
-            serializer.validated_data['author']=userquery
+            serializer.validated_data['writer']=userquery
             serializer.validated_data['post']=postquery
             serializer.save()
             return Response(serializer.data, status=200)
@@ -65,6 +64,7 @@ class LikeViewSet(viewsets.ViewSet):
         posts_forcheck = Like.objects.filter(post=kwargs.get("postID"))
         likerlist = []
         for post in posts_forcheck:
+            print(getattr(post, 'liker'))
             likerlist.append(getattr(post, 'liker'))
 
         if likerID in likerlist:
