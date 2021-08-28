@@ -36,8 +36,12 @@ class PostSerializer(serializers.ModelSerializer):
     comment = CommentSerializer(many=True, read_only=True)
     like = LikeSerializer(many=True, read_only=True)
     location = LocationSerializer()
+    totalLikes = serializers.SerializerMethodField(read_only=True)
+
+    def get_totalLikes(self, likes):
+        return likes.like.count()
 
     class Meta:
         model = Post
-        fields = ('postID', 'content', 'author', 'comment', 'like', 'location', 'postImage')
+        fields = ('postID', 'content', 'author', 'comment', 'like', 'location', 'postImage', 'totalLikes')
 
