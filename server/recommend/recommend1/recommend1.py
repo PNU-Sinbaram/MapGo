@@ -117,9 +117,8 @@ class recommend1 :
         while(len(filtering_result) < 5) :
             try :
                 rank_place = places_info.pop(0)
-                filtering_result.append([rank_place[1],rank_place[3],rank_place[4]])
+                filtering_result.append({"name":rank_place[1],"lat":rank_place[3],"long":rank_place[4],"filtering":1})
             except :
                 break
 
         return(filtering_result)
-            
