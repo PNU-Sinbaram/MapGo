@@ -1,7 +1,5 @@
 package com.sinbaram.mapgo
 
-import android.content.Intent
-import android.graphics.PointF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -18,13 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import com.google.ar.sceneform.math.Vector3
-import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapFragment
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.NaverMapOptions
-import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.Symbol
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
@@ -43,8 +35,7 @@ import kotlin.math.sin
 class MapGoActivity :
     AppCompatActivity(),
     FragmentOnAttachListener,
-    SensorEventListener,
-    OnMapReadyCallback {
+    SensorEventListener {
     // Activity binding variable
     private lateinit var mBinding: ActivityMapgoBinding
 
@@ -55,14 +46,12 @@ class MapGoActivity :
     private val mRotationMatrix = FloatArray(9)
     private val mOrientationAngles = FloatArray(3)
 
-    // Location
-    private lateinit var mLocationSource: FusedLocationSource
-    private lateinit var mNaverMap: NaverMap
-    private lateinit var mCurrentLocation: Location
-    private var mCameraFirstMove = true
-
     // Snackbar message popping helper
     private val mMessageSnackbarHelper: SnackbarHelper = SnackbarHelper()
+
+    // com.sinbaram.mapgo.Map class
+    private lateinit var mMap: MapWrapper
+    private lateinit var mLocationSource: FusedLocationSource
 
     // ARCore Renderer class
     private lateinit var mRenderer: Renderer
@@ -90,76 +79,29 @@ class MapGoActivity :
 
         supportFragmentManager.addFragmentOnAttachListener(this)
 
+        // Setup Renderer
         mRenderer = Renderer(applicationContext, supportFragmentManager)
-
-        // Pass naverMap FragmentLayout to naver maps sdk and connect listener
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.naverMap) as MapFragment?
-            ?: MapFragment.newInstance(
-                NaverMapOptions()
-                    .scaleBarEnabled(false)
-                    .rotateGesturesEnabled(false)
-                    .scrollGesturesEnabled(true)
-                    .zoomControlEnabled(true)
-                    .zoomGesturesEnabled(true)
-                    .stopGesturesEnabled(false)
-                    .tiltGesturesEnabled(false)
-                    .compassEnabled(true)
-            ).also {
-                supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
-            }
-        mapFragment.getMapAsync(this)
 
         // Set Sensor manager of this device
         mSensorManager = getSystemService()!!
 
-        // Set location source
-        mLocationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        // Setup Naver Map Wrapper
+        mLocationSource = FusedLocationSource(this, MapGoActivity.LOCATION_PERMISSION_REQUEST_CODE)
+        mMap = MapWrapper(
+            mLocationSource,
+            supportFragmentManager,
+            this::renderNearbySymbols
+        )
 
         // Pass activity binding root
         setContentView(mBinding.root)
-    }
-
-    override fun onMapReady(naverMap: NaverMap) {
-        // If naver map is ready, assign in to member variable
-        this.mNaverMap = naverMap
-        naverMap.locationSource = mLocationSource
-        naverMap.locationTrackingMode = LocationTrackingMode.Face
-
-        // Add gps location tracking listener
-        naverMap.addOnLocationChangeListener {
-            // Location information tracking here
-            mCurrentLocation = it
-            // Set camera location and tracking mode only once
-            if (mCameraFirstMove) {
-                mCameraFirstMove = false
-                // Move camera to there
-                naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(it)))
-                naverMap.locationTrackingMode = LocationTrackingMode.Face
-                // Print camera location for once for debugging
-                Log.d(TAG, String.format("Symbol(User) location %f, %f", it.latitude, it.longitude))
-            } else {
-                // Search nearby places
-                renderNearbySymbols(mCurrentLocation)
-            }
-        }
     }
 
     /**
      * @param location : center location of nearby radius
      * rendering nearby symbols with given location
      */
-    private fun renderNearbySymbols(location: Location) {
-        // Transform given location information to screen position
-        val cameraPos: PointF = mNaverMap.projection.toScreenLocation(LatLng(location))
-
-        // Query nearby symbols
-        val symbols = mutableListOf<Symbol>()
-        mNaverMap.pickAll(cameraPos, NEARBY_RADIUS_MAP_COORD).forEach {
-            when (it) {
-                is Symbol -> symbols.add(it)
-            }
-        }
-
+    private fun renderNearbySymbols(symbols: MutableList<Symbol>) {
         // Add symbols with null renderable
         val symbolNodes = mutableListOf<SymbolRenderable>()
         symbols.forEach { symbol: Symbol ->
@@ -174,7 +116,7 @@ class MapGoActivity :
             val targetLocation = Location("")
             targetLocation.latitude = it.symbol.position.latitude
             targetLocation.longitude = it.symbol.position.longitude
-            val degree = (360 - ((TransformHelper.calculateBearing(mCurrentLocation, targetLocation) + 360) % 360))
+            val degree = (360 - ((TransformHelper.calculateBearing(mMap.getCurrentLocation(), targetLocation) + 360) % 360))
 
             // Transform euler degree to world coordinates
             val y = 0.0f
@@ -243,15 +185,8 @@ class MapGoActivity :
         permissions: Array<String>,
         grantResults: IntArray
     ) {
-        if (
-            mLocationSource.onRequestPermissionsResult(
-                requestCode, permissions, grantResults
-            )
-        ) {
-            if (!mLocationSource.isActivated) { // 권한 거부됨
-                mNaverMap.locationTrackingMode = LocationTrackingMode.None
-            }
-            return
+        if (mLocationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            return;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
