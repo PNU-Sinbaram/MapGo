@@ -1,8 +1,6 @@
-from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import viewsets
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from .serializers import UserSerializer, PostSerializer, \
@@ -14,6 +12,7 @@ import json
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet):
+    @classmethod
     def list(self, request, **kwargs):
         if kwargs.get('deviceID') is None:
             queryset = User.objects.all()
@@ -29,6 +28,7 @@ class UserViewSet(viewsets.ViewSet):
             serializer = UserSerializer(query)
             return Response(serializer.data, status=200)
 
+    @classmethod
     def create(self, request):
         requestData = {"userID": request.POST.get("userID"),
                        "deviceID": request.POST.get("deviceID"),
@@ -42,6 +42,7 @@ class UserViewSet(viewsets.ViewSet):
 
 
 class PostViewSet(viewsets.ViewSet):
+    @classmethod
     def list(self, request, **kwargs):
         if kwargs.get('author') is None:
             queryset = Post.objects.all()
@@ -51,6 +52,7 @@ class PostViewSet(viewsets.ViewSet):
             serializer = PostSerializer(Posts, many=True)
         return Response(serializer.data)
 
+    @classmethod
     def create(self, request):
         requestData = {"contents": request.POST.get("contents"),
                        "location": json.loads(request.POST.get("location"))}
@@ -77,6 +79,7 @@ class PostViewSet(viewsets.ViewSet):
 
 
 class CommentViewSet(viewsets.ViewSet):
+    @classmethod
     def create(self, request, **kwargs):
         requestData = {"writer": request.POST.get("writer"),
                        "post": kwargs.get('postID'),
@@ -98,6 +101,7 @@ class CommentViewSet(viewsets.ViewSet):
 
 
 class LikeViewSet(viewsets.ViewSet):
+    @classmethod
     def create(self, request, **kwargs):
         requestData = {"liker": request.POST.get("userID"),
                        "post": kwargs.get('postID')}
@@ -113,6 +117,7 @@ class LikeViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
 
+    @classmethod
     def destroy(self, request, **kwargs):
         requestData = {"liker": request.POST.get("userID"),
                        "post": kwargs.get('postID')}

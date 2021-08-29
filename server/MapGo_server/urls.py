@@ -23,9 +23,7 @@ from rest_framework import routers
 
 from checkin.views import CheckinViewSet
 from recommend.views import STCViewSet
-from sns.views import UserViewSet
 
-import os
 
 routers = {
     "checkin": routers.DefaultRouter(),

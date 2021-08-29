@@ -1,5 +1,4 @@
 from .models import User, Post, PostImage, Comment, Like
-from django.db import models
 from rest_framework import serializers
 
 
@@ -7,6 +6,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     picture = serializers.ImageField(use_url=True)
 
     class Meta:
+
+        """Create serializer for model User"""
         model = User
         fields = ('id', 'deviceID', 'username', 'picture')
 
@@ -15,18 +16,24 @@ class PostImageSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
 
     class Meta:
+
+        """Create serializer for image in model Post"""
         model = PostImage
         fields = ('image', 'post')
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
+
+        """Create serializer for comment in model Post"""
         model = Comment
         fields = ('writer', 'contents', 'post')
 
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
+
+        """Create serializer for like in model Post"""
         model = Like
         fields = ('liker', 'post')
 
@@ -44,10 +51,13 @@ class PostSerializer(serializers.ModelSerializer):
     location = LocationSerializer()
     totalLikes = serializers.SerializerMethodField(read_only=True)
 
-    def get_totalLikes(self, likes):
+    @staticmethod
+    def get_totalLikes(likes):
         return likes.like.count()
 
     class Meta:
+
+        """Create serializer for model Post"""
         model = Post
         fields = ('postID', 'writer', 'contents', 'postImage', 'location',
                   'postTime', 'comment', 'like', 'totalLikes')
