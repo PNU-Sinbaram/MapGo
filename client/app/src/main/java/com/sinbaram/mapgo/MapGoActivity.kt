@@ -215,6 +215,12 @@ class MapGoActivity :
 
         // Swap old node list to new one
         mSymbolNodes = symbolNodes
+
+        // Set direction for living node
+        mSymbolNodes.forEach {
+            if (it.anchor != null)
+                mRenderer.renewAnchorDirection(it.anchor!!)
+        }
     }
 
     override fun onResume() {

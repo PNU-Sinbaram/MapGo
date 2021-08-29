@@ -77,10 +77,6 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
     fun createAnchor(worldCoord: Vector3): AnchorNode {
         val anchorNode = AnchorNode()
         anchorNode.worldPosition = worldCoord
-        val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
-        val direction = Vector3.subtract(cameraPos, anchorNode.worldPosition)
-        val lookRotation = Quaternion.lookRotation(direction, Vector3.up())
-        anchorNode.worldRotation = lookRotation
 
         return anchorNode
     }
@@ -139,6 +135,13 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
             )
 
         return node
+    }
+
+    fun renewAnchorDirection(anchorNode: AnchorNode) {
+        val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
+        val direction = Vector3.subtract(cameraPos, anchorNode.worldPosition)
+        val lookRotation = Quaternion.lookRotation(direction, Vector3.up())
+        anchorNode.worldRotation = lookRotation
     }
 
     fun getScene(): Scene {
