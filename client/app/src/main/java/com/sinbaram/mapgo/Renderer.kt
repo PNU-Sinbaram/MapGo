@@ -96,10 +96,13 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
                     call.enqueue(object: Callback<ImageQuery> {
                         override fun onResponse(call: Call<ImageQuery>, response: Response<ImageQuery>) {
                             if (response.code() == 200) {
-                                val imageView: ImageView = viewRenderable.view as ImageView
-                                Picasso.get()
-                                    .load(response.body()!!.items[0].thumbnail)
+                                val responseQuery: ImageQuery = response.body()!!
+                                if (!responseQuery.items.isEmpty()) {
+                                    val imageView: ImageView = viewRenderable.view as ImageView
+                                    Picasso.get()
+                                        .load(responseQuery.items[0].thumbnail)
                                     .into(imageView)
+                                }
                             }
                         }
 
