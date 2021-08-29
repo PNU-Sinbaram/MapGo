@@ -202,6 +202,8 @@ class MapGoActivity :
             // Create image symbol and attach to anchor
             mRenderer.createImageSymbol(Vector3(0.0f, 1.0f, 0.0f), it.symbol.caption)
                 .setParent(it.anchor)
+            mRenderer.createTextSymbol(Vector3(0.0f, 0.5f, 0.0f), it.symbol.caption)
+                .setParent(it.anchor)
             rootScene.addChild(it.anchor)
         }
 
