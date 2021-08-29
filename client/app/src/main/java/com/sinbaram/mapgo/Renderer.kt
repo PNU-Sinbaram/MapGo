@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import android.view.MotionEvent
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import com.google.android.filament.ColorGrading
 import com.google.ar.core.Config
@@ -112,6 +113,26 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
 
                     })
 
+                    node.setRenderable(viewRenderable)
+                    node.isEnabled = true
+                }
+            )
+
+        return node
+    }
+
+    fun createTextSymbol(localCoord: Vector3, text: String): Node {
+        val node = Node();
+        node.isEnabled = false
+        node.localPosition = localCoord
+        node.localScale = Vector3(1.0f, 1.0f, 1.0f)
+        ViewRenderable.builder()
+            .setView(mContext, R.layout.building_text)
+            .build()
+            .thenAccept(
+                Consumer { viewRenderable: ViewRenderable ->
+                    val textView: TextView = viewRenderable.view as TextView
+                    textView.text = text
                     node.setRenderable(viewRenderable)
                     node.isEnabled = true
                 }
