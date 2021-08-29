@@ -13,6 +13,7 @@ likeview = LikeViewSet.as_view({
 
 router = routers.DefaultRouter()
 router.register(r'user', UserViewSet, basename='user')
+router.register(r'user/(?P<deviceID>\w+)', UserViewSet, basename='user')
 router.register(r'post/(?P<postID>\d+)/comment',
                 CommentViewSet, basename='comment')
 router.register(r'post/(?P<author>\w+)', PostViewSet, basename='post')
