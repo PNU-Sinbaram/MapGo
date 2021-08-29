@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import viewsets
 from rest_framework.parsers import JSONParser
@@ -19,9 +20,15 @@ class UserViewSet(viewsets.ViewSet):
             serializer = UserSerializer(queryset, many=True)
             return Response(serializer.data, status=200)
         else:
-            query = User.objects.get(deviceID=kwargs.get('deviceID'))
+            try:
+                query = User.objects.get(deviceID=kwargs.get('deviceID'))
+            except ObjectDoesNotExist:
+                return Response(f'The user who has device ID '
+                                f'[{kwargs.get("deviceID")}] '
+                                f'doesn\'t exist.', status=400)
             serializer = UserSerializer(query)
             return Response(serializer.data, status=200)
+
     def create(self, request):
         requestData = {"userID": request.POST.get("userID"),
                        "deviceID": request.POST.get("deviceID"),
@@ -30,9 +37,8 @@ class UserViewSet(viewsets.ViewSet):
         serializer = UserSerializer(data=requestData)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-
 
 
 class PostViewSet(viewsets.ViewSet):
@@ -50,8 +56,13 @@ class PostViewSet(viewsets.ViewSet):
                        "location": json.loads(request.POST.get("location"))}
         postSerializer = PostSerializer(data=requestData)
         if postSerializer.is_valid():
-            postSerializer.validated_data['writer'] = \
-                User.objects.get(id=request.POST.get("writer"))
+            try:
+                postSerializer.validated_data['writer'] = \
+                    User.objects.get(id=request.POST.get("writer"))
+            except ObjectDoesNotExist:
+                return Response(f'The user with id '
+                                f'[{request.POST.get("writer")}] '
+                                f'doesn\'t exist.', status=400)
             postSerializer.save()
             for image in request.FILES.getlist("postImage"):
                 requestData_Image = {"post": postSerializer.data["postID"],
@@ -61,7 +72,7 @@ class PostViewSet(viewsets.ViewSet):
                 if postimageSerializer.is_valid():
                     postimageSerializer.save()
 
-            return Response(postSerializer.data, status=200)
+            return Response(postSerializer.data, status=201)
         return Response(postSerializer.errors, status=400)
 
 
@@ -71,14 +82,18 @@ class CommentViewSet(viewsets.ViewSet):
                        "post": kwargs.get('postID'),
                        "contents": request.POST.get("contents")}
         postid = kwargs.get('postID')
-        postquery = Post.objects.get(postID=postid)
-        userquery = User.objects.get(id=request.POST.get("writer"))
+        try:
+            postquery = Post.objects.get(postID=postid)
+            userquery = User.objects.get(id=request.POST.get("writer"))
+        except ObjectDoesNotExist as e:
+            return Response(str(e), status=400)
+
         serializer = CommentSerializer(data=requestData)
         if serializer.is_valid():
             serializer.validated_data['writer'] = userquery
             serializer.validated_data['post'] = postquery
             serializer.save()
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
 
