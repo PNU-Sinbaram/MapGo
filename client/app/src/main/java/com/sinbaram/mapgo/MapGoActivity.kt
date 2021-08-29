@@ -12,7 +12,6 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.View
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
@@ -128,10 +127,6 @@ class MapGoActivity :
 
         // Add gps location tracking listener
         naverMap.addOnLocationChangeListener {
-            Toast.makeText(
-                this, "${it.latitude}, ${it.longitude}",
-                Toast.LENGTH_SHORT
-            ).show()
             // Location information tracking here
             mCurrentLocation = it
             // Set camera location and tracking mode only once
