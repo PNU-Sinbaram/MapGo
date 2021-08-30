@@ -1,7 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.MaterialComponents">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,22 +26,31 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/menuButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/menu_icon_desc"
-        android:src="@drawable/oval_shape" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/profileButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="360dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/profile_icon_desc"
-        android:src="@drawable/oval_shape" />
+        <Button
+            android:id="@+id/menuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="8dp"
+            android:text="@string/menu_button_text"
+            android:contentDescription="@string/menu_icon_desc"
+            android:src="@drawable/oval_shape" />
+
+        <Button
+            android:id="@+id/profileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:text="@string/profile_button_text"
+            android:contentDescription="@string/profile_icon_desc"
+            android:src="@drawable/oval_shape" />
+    </RelativeLayout>
 
 </FrameLayout>
