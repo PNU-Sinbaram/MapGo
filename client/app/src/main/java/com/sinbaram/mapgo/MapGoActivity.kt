@@ -1,5 +1,7 @@
 package com.sinbaram.mapgo
 
+import android.app.Activity
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -10,6 +12,7 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.View
 import android.widget.PopupMenu
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
@@ -21,6 +24,7 @@ import com.naver.maps.map.Symbol
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.AR.Helper.TransformHelper
+import com.sinbaram.mapgo.Model.ProfileModel
 import com.sinbaram.mapgo.Model.SymbolRenderable
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import kotlin.math.PI
@@ -57,11 +61,15 @@ class MapGoActivity :
     private lateinit var mRenderer: Renderer
     private var mSymbolNodes: List<SymbolRenderable> = mutableListOf()
 
+    // Profile data
+    private var mProfile: ProfileModel? = null
+
     companion object {
         val TAG: String = MapGoActivity::class.java.simpleName
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         const val NEARBY_RADIUS_MAP_COORD = 300
         const val NEARBY_RADIUS_WORLD_COORD = 3.0f
+        const val PROFILE_ACTIVITY_CODE = 1234
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,6 +100,20 @@ class MapGoActivity :
             supportFragmentManager,
             this::renderNearbySymbols
         )
+
+        // Set menu button listener
+        mBinding.menuButton.setOnClickListener {
+            showPopup(it)
+        }
+
+        // Set profile button listener
+        mBinding.profileButton.setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java).apply {
+                if (mProfile != null)
+                    intent.putExtra("Profile", mProfile)
+            }
+            startActivityForResult(intent, PROFILE_ACTIVITY_CODE)
+        }
 
         // Pass activity binding root
         setContentView(mBinding.root)
@@ -237,5 +259,14 @@ class MapGoActivity :
             true
         }
         popup.show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == PROFILE_ACTIVITY_CODE) {
+            val extras: Bundle = data!!.extras!!
+            if (extras.containsKey("Profile"))
+                mProfile = extras["Profile"] as ProfileModel
+        }
     }
 }
