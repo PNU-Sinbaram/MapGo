@@ -29,6 +29,11 @@ class MapWrapper(
 
     companion object {
         val TAG: String = MapWrapper::class.java.simpleName
+
+        @Volatile private var instance: MapWrapper? = null
+        @JvmStatic fun getInstance(): MapWrapper {
+            return instance!!
+        }
     }
 
     init {
@@ -56,6 +61,9 @@ class MapWrapper(
 
         // Synchronize naver map with this class
         mapFragment.getMapAsync(this)
+
+        // Set this object to singleton instance
+        instance = this
     }
 
     override fun onMapReady(naverMap: NaverMap) {
