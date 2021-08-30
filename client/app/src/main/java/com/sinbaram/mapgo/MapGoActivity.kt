@@ -22,11 +22,17 @@ import com.google.ar.sceneform.math.Vector3
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.Symbol
 import com.naver.maps.map.util.FusedLocationSource
+import com.sinbaram.mapgo.API.ServerAPI
+import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.AR.Helper.TransformHelper
 import com.sinbaram.mapgo.Model.ProfileModel
+import com.sinbaram.mapgo.Model.Recommendation
 import com.sinbaram.mapgo.Model.SymbolRenderable
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -241,6 +247,29 @@ class MapGoActivity :
         if (fragment.id == mBinding.arFragment.id) {
             mRenderer.attachFragment(fragment)
         }
+    }
+
+    fun getRecommendations(keywords: List<String>) {
+        val loc = mMap.getCurrentLocation()
+        val query = keywords.joinToString()
+        val serverAPI = ServerAPI.GetClient()!!.create(ServerClient::class.java)
+        val apiCall : Call<List<Recommendation>> = serverAPI.GetRecommendations(
+            mProfile!!.nickname!!,
+            loc.latitude.toFloat(),
+            loc.longitude.toFloat(),
+            50,
+            query
+        )
+        apiCall.enqueue(object: Callback<List<Recommendation>> {
+            override fun onResponse(call: Call<List<Recommendation>>, response: Response<List<Recommendation>>) {
+                if (response.code() == 200) {
+                    mMap.setMarkerOnRecommendation(response.body()!!)
+                }
+            }
+            override fun onFailure(call: Call<List<Recommendation>>, t: Throwable) {
+                Log.d(TAG, "Cannot get recommendations $query")
+            }
+        })
     }
 
     fun showPopup(v : View){

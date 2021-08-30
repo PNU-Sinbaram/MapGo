@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import com.sinbaram.mapgo.Model.Recommendation
 import kotlin.reflect.KFunction1
 
 class MapWrapper(
@@ -99,5 +101,13 @@ class MapWrapper(
 
     fun getCurrentLocation(): Location {
         return mCurrentLocation
+    }
+
+    fun setMarkerOnRecommendation(recommends: List<Recommendation>) {
+        recommends.forEach {
+            val marker: Marker = Marker()
+            marker.position = LatLng(it.latitude as Double, it.long as Double)
+            marker.map = mNaverMap
+        }
     }
 }
