@@ -93,6 +93,10 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        mBinding.cancelButton.setOnClickListener {
+            finish()
+        }
+
         // Pass activity binding root
         setContentView(mBinding.root)
     }
