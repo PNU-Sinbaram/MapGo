@@ -13,7 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
@@ -22,9 +24,10 @@ from rest_framework import routers
 from checkin.views import CheckinViewSet
 from recommend.views import STCViewSet
 
+
 routers = {
     "checkin": routers.DefaultRouter(),
-    "recommend": routers.DefaultRouter()
+    "recommend": routers.DefaultRouter(),
 }
 
 routers["checkin"].register('Mapgo/checkin',
@@ -38,4 +41,5 @@ urlpatterns = [
     path('Mapgo/checkin/<str:userid>/',
          CheckinViewSet.as_view({'delete': 'delete'})),
     path('', include(routers["recommend"].urls)),
-]
+    path('Mapgo/sns/', include('sns.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
