@@ -4,4 +4,5 @@
     <string name="menu_new_feed">새로운 피드</string>
     <string name="menu_keyword">관심사 키워드 설정</string>
     <string name="menu_icon_desc">MenuLogo</string>
+    <string name="profile_icon_desc">ProfileLogo</string>
 </resources>

@@ -25,13 +25,22 @@
 
     </LinearLayout>
 
-    <ImageButton
+    <Button
+        android:id="@+id/menuButton"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/oval_shape"
         android:contentDescription="@string/menu_icon_desc"
-        android:onClick="showPopup" />
-    
+        android:src="@drawable/oval_shape" />
+
+    <Button
+        android:id="@+id/profileButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="360dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/profile_icon_desc"
+        android:src="@drawable/oval_shape" />
+
 </FrameLayout>
