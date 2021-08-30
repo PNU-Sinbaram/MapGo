@@ -76,6 +76,7 @@ class MapGoActivity :
         const val NEARBY_RADIUS_MAP_COORD = 300
         const val NEARBY_RADIUS_WORLD_COORD = 3.0f
         const val PROFILE_ACTIVITY_CODE = 1234
+        const val NEWFEED_ACTIVITY_CODE = 4567
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -251,7 +252,7 @@ class MapGoActivity :
 
     fun getRecommendations(keywords: List<String>) {
         val loc = mMap.getCurrentLocation()
-        val query = keywords.joinToString()
+        val query = keywords.joinToString(" ")
         val serverAPI = ServerAPI.GetClient()!!.create(ServerClient::class.java)
         val apiCall : Call<List<Recommendation>> = serverAPI.GetRecommendations(
             mProfile!!.nickname!!,
@@ -279,7 +280,11 @@ class MapGoActivity :
         popup.setOnMenuItemClickListener { menuItem ->
             when(menuItem.itemId){
                 R.id.menu_new_feed-> {
-
+                    val intent = Intent(this, NewFeedActivity::class.java).apply {
+                        if (mProfile != null)
+                            intent.putExtra("Profile", mProfile)
+                    }
+                    startActivityForResult(intent, NEWFEED_ACTIVITY_CODE)
                 }
                 R.id.menu_keyword-> {
 
@@ -292,10 +297,17 @@ class MapGoActivity :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == PROFILE_ACTIVITY_CODE) {
-            val extras: Bundle = data!!.extras!!
-            if (extras.containsKey("Profile"))
-                mProfile = extras["Profile"] as ProfileModel
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                PROFILE_ACTIVITY_CODE -> {
+                    val extras: Bundle = data!!.extras!!
+                    if (extras.containsKey("Profile"))
+                        mProfile = extras["Profile"] as ProfileModel
+                }
+                NEWFEED_ACTIVITY_CODE -> {
+
+                }
+            }
         }
     }
 }

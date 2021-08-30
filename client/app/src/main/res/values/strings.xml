@@ -8,4 +8,9 @@
     <string name="profile_text_hint">SNS에서 사용할 닉네임</string>
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
+    <string name="menu_button_text">MENU</string>
+    <string name="profile_button_text">PROFILE</string>
+    <string name="sns_feed_location_hint">위치 (ex: 부산광역시 동래구 사직로 80)</string>
+    <string name="sns_feed_keywords_hint">키워드 (ex: 카페 디저트 분위기)</string>
+    <string name="sns_feed_contents_hint">본문</string>
 </resources>
