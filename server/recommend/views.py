@@ -12,21 +12,24 @@ import json
 
 
 # Create your views here.
-class STCViewSet(viewsets.ModelViewSet):
+class STCViewSet(viewsets.ViewSet):
     @classmethod
     def list(self, request):
         # recommender1 = recommend1()
         # recommender2 = recommend2()
+        UserID = request.query_params["User_ID"]
+        latitude = request.query_params["lat"]
+        longitude = request.query_params["long"]
+        keywords = request.query_params["keywords"]
+        epsilon = request.query_params["epsilon"]
 
-        requestData = JSONParser().parse(request)
+        requestData = {"User_ID": UserID,
+                       "lat": latitude,
+                       "long": longitude,
+                       "keywords": keywords,
+                       "epsilon": epsilon}
         serializer = PlaceRequestSerializer(data=requestData)
         if serializer.is_valid():
-            UserID = requestData['User_ID']
-            latitude = requestData['lat']
-            longitude = requestData['long']
-            keywords = requestData['keywords']
-            epsilon = requestData['epsilon']
-
             requestResult1 = recommend1.recommend(
                 latitude, longitude, keywords, epsilon
             )
