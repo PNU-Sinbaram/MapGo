@@ -75,6 +75,8 @@ class MapGoActivity :
         const val NEARBY_RADIUS_WORLD_COORD = 3.0f
         const val PROFILE_ACTIVITY_CODE = 1234
         const val NEWFEED_ACTIVITY_CODE = 4567
+        const val RECOMMEND_ACTIVITY_CODE = 1357
+        const val NAVIGATION_ACTIVITY_CODE = 2468
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,16 +190,15 @@ class MapGoActivity :
     }
 
     /** Get recommendations with keywords from mapgo server */
-    fun getRecommendations(keywords: List<String>) {
+    fun getRecommendations(keywords: String) {
         val loc = mMap.getCurrentLocation()
-        val query = keywords.joinToString(" ")
         val serverAPI = ServerAPI.GetClient()!!.create(ServerClient::class.java)
         val apiCall : Call<List<RecommendationModel>> = serverAPI.GetRecommendations(
-            mProfile!!.nickname!!,
+            mProfile.nickname!!,
             loc.latitude.toFloat(),
             loc.longitude.toFloat(),
             50,
-            query
+            keywords
         )
         apiCall.enqueue(object: Callback<List<RecommendationModel>> {
             override fun onResponse(call: Call<List<RecommendationModel>>, response: Response<List<RecommendationModel>>) {
@@ -206,7 +207,7 @@ class MapGoActivity :
                 }
             }
             override fun onFailure(call: Call<List<RecommendationModel>>, t: Throwable) {
-                Log.d(TAG, "Cannot get recommendations $query")
+                Log.d(TAG, "Cannot get recommendations")
             }
         })
     }
@@ -285,7 +286,15 @@ class MapGoActivity :
                     startActivityForResult(intent, NEWFEED_ACTIVITY_CODE)
                 }
                 R.id.menu_keyword-> {
-                    getRecommendations(listOf("카페", "디저트"))
+                    val intent = Intent(this, RecommendActivity::class.java).apply {
+                        intent.putExtra("Profile", mProfile)
+                    }
+                    startActivityForResult(intent, RECOMMEND_ACTIVITY_CODE)
+                }
+                R.id.menu_navigation-> {
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    overridePendingTransition(0, 0)
+                    startActivityForResult(intent, NAVIGATION_ACTIVITY_CODE)
                 }
             }
             true
@@ -296,14 +305,22 @@ class MapGoActivity :
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
+            val extras: Bundle = data!!.extras!!
             when (requestCode) {
                 PROFILE_ACTIVITY_CODE -> {
-                    val extras: Bundle = data!!.extras!!
                     if (extras.containsKey("Profile"))
                         mProfile = extras["Profile"] as ProfileModel
                 }
                 NEWFEED_ACTIVITY_CODE -> {
 
+                }
+                RECOMMEND_ACTIVITY_CODE -> {
+                    val keywords = extras["Keywords"] as String
+                    getRecommendations(keywords)
+                }
+                NAVIGATION_ACTIVITY_CODE -> {
+                    if (extras.containsKey("Destination"))
+                        extras["Destination"] as String
                 }
             }
         }
