@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from .serializers import UserSerializer, PostSerializer, \
                          PostImageSerializer, CommentSerializer, LikeSerializer
-from .models import User, Post, Like
+from .models import User, Post, Like, Comment
 
 import json
 
@@ -99,8 +99,22 @@ class CommentViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
+    @classmethod
+    def list(self, request, **kwargs):
+        postid = kwargs.get('postID')
+        commentQuery = Comment.objects.filter(post=postid)
+        serializer = CommentSerializer(commentQuery, many=True)
+        return Response(serializer.data, status=200)
+
 
 class LikeViewSet(viewsets.ViewSet):
+    @classmethod
+    def list(self, request, **kwargs):
+        postId = kwargs.get('postID')
+        likeQuery = Like.objects.filter(post=postId)
+        serializer = LikeSerializer(likeQuery, many=True)
+        return Response(serializer.data, status=200)
+
     @classmethod
     def create(self, request, **kwargs):
         requestData = {"liker": request.POST.get("userID"),
