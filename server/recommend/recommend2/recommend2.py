@@ -61,7 +61,7 @@ class recommend2:
                 loc[UserID].sort_values(axis=0, ascending=False)
         except KeyError:
             return None
-        if recommendPlaces.count() is 0:
+        if recommendPlaces.count() == 0:
             return None
         if recommendPlaces.count() >= 5:
             partialIndex = round(recommendPlaces.count()*(epsilon/100))
@@ -75,7 +75,7 @@ class recommend2:
                 recommendPlaces.sort_values(axis=0, ascending=False)
         for placeName in recommendPlaces.index:
             lat_round = round(placePosList[placeName]["lat"], 6)
-            long_round = round(placePosList[placeName]["lnt"], 6)
+            long_round = round(placePosList[placeName]["lng"], 6)
             recommendResult.append({"name": placeName,
                                     "lat": lat_round,
                                     "long": long_round,
