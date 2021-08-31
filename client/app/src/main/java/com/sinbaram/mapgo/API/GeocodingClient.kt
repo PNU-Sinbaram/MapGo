@@ -1,5 +1,6 @@
 package com.sinbaram.mapgo.API
 
+import com.sinbaram.mapgo.Model.GeocodingModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -11,6 +12,5 @@ interface GeocodingClient {
     @GET("/map-geocode/v2/geocode")
     fun GetGeocode(
         @Query("query") query: String,
-        @Query("coordinate") coordinate: String
-    ): Call<Void>
+    ): Call<GeocodingModel>
 }
