@@ -43,5 +43,8 @@ class STCViewSet(viewsets.ViewSet):
                 result = {"result": requestResult1}
             jsonRequest = json.dumps(result, ensure_ascii=False)
 
-            return Response(json.JSONDecoder().decode(jsonRequest)["result"], status=200)
+            return Response(
+                json.JSONDecoder().decode(jsonRequest)["result"],
+                status=200
+            )
         return Response(serializer.errors, status=400)

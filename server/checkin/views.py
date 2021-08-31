@@ -31,10 +31,14 @@ class CheckinViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             placeList = []
 
-            locationString = str(serializer.validated_data['lat'])+','+str(serializer.validated_data['long'])
+            locationString = str(serializer.validated_data['lat']) \
+                + ',' + str(serializer.validated_data['long'])
             googlePlaceApiKey = os.environ['GOOGLE_PLACES_KEY']
-            URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-            params = {'key': googlePlaceApiKey, 'location': locationString, 'radius': 10, 'language': 'ko'}
+            URL = "https://maps.googleapis.com/" \
+                "maps/api/place/nearbysearch/json"
+            params = {'key': googlePlaceApiKey,
+                      'location': locationString,
+                      'radius': 10, 'language': 'ko'}
             resp = json.loads(requests.get(URL, params=params).text)
             resp = resp.get('results')
 
@@ -45,16 +49,25 @@ class CheckinViewSet(viewsets.ViewSet):
             if serializer.validated_data.get('placeName', None) is None:
                 if len(placeList) == 0:
                     print(resp)
-                    return Response("There are no places in "+locationString, status=400)
+                    return Response("There are no places in "
+                                    + locationString, status=400)
                 elif len(placeList) == 1:
                     serializer.validated_data['placeName'] = placeList[0]
                     serializer.save()
                     return Response(serializer.data, status=200)
                 else:
-                    placeNameListJSON = json.dumps({"message": 'There are multiple location in requested position. Re-request with field "placeName"',
-                                                    "places": self.__locationListToJSON(placeList)}, ensure_ascii=False)
-                    print(placeNameListJSON)
-                    return Response(json.JSONDecoder().decode(placeNameListJSON), status=203)
+                    placejson = json.dumps({"message": 'There are multiple '
+                                            'location in requested position.'
+                                            'Re-request with field '
+                                            '"placeName"', "places":
+                                            self.__locListtoJSON(
+                                                placeList
+                                            )}, ensure_ascii=False)
+                    print(placejson)
+                    return Response(
+                        json.JSONDecoder().decode(placejson),
+                        status=203
+                    )
             else:
                 if serializer.validated_data.get('placeName') in placeList:
                     serializer.save()
@@ -74,10 +87,10 @@ class CheckinViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist:
             return Response("User "+userid+" not found.", status=400)
 
-    def __locationListToJSON(locationList):
+    def __locListtoJSON(locationList):
         locId = 1
         placeNameList = []
-        for l in locationList:
-            placeNameList.append({'id': locId, 'placeName': l})
-            locId+=1
+        for location in locationList:
+            placeNameList.append({'id': locId, 'placeName': location})
+            locId += 1
         return placeNameList

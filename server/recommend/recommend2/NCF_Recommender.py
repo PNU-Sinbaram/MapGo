@@ -98,7 +98,8 @@ def create_ncf(
     predict_layer = Concatenate()([mf_cat_latent, mlp_vector])
 
     result = Dense(
-        1, activation="sigmoid", kernel_initializer="lecun_uniform", name="interaction"
+        1, activation="sigmoid",
+        kernel_initializer="lecun_uniform", name="interaction"
     )
 
     output = result(predict_layer)
@@ -109,6 +110,7 @@ def create_ncf(
     )
 
     return model
+
 
 def make_tf_dataset(
     df: pd.DataFrame,
@@ -132,20 +134,26 @@ def make_tf_dataset(
     ds_train = ds.skip(n_val).batch(batch_size)
     return ds_train, ds_val
 
+
 def eda():
     df = pd.read_csv('./checkin_history')
     df.drop('Unnamed: 0', axis=1)
 
-    Checkins_table = pd.DataFrame({'reviewer': df['reviewer'], 'place': df['place']})
-    Checkins_table = Checkins_table.place.groupby([Checkins_table.reviewer, Checkins_table.place]).size().unstack().fillna(0).astype(int)
-    Checkins_table = (Checkins_table>0).astype(int)
+    Checkins_table = pd.DataFrame({'reviewer': df['reviewer'],
+                                   'place': df['place']})
+    Checkins_table = Checkins_table.place.groupby([
+        Checkins_table.reviewer, Checkins_table.place
+    ]).size().unstack().fillna(0).astype(int)
+    Checkins_table = (Checkins_table > 0).astype(int)
     Checkins_table_rows = Checkins_table.index.values.tolist()
     Checkins_table_columns = Checkins_table.columns.tolist()
     unique_Checkins = np.unique(Checkins_table)
     Checkins_table = Checkins_table.to_numpy()
 
-    return Checkins_table, unique_Checkins, Checkins_table_columns, Checkins_table_rows
- 
+    return Checkins_table, unique_Checkins, \
+        Checkins_table_columns, Checkins_table_rows
+
+
 def wide_to_long(wide: np.array, possible_ratings: List[int]) -> np.array:
     def _get_ratings(arr: np.array, rating: int) -> np.array:
         idx = np.where(arr == rating)
@@ -159,11 +167,14 @@ def wide_to_long(wide: np.array, possible_ratings: List[int]) -> np.array:
 
     return np.vstack(long_arrays)
 
+
 def main():
-    Checkins_table, Unique_Checkins, Checkins_table_columns, Checkins_table_rows = eda()
+    Checkins_table, Unique_Checkins, \
+        Checkins_table_columns, Checkins_table_rows = eda()
 
     long_train = wide_to_long(Checkins_table, Unique_Checkins)
-    df_train = pd.DataFrame(long_train, columns=["user_id", "item_id", "interaction"])
+    df_train = pd.DataFrame(long_train,
+                            columns=["user_id", "item_id", "interaction"])
     df_test = df_train
 
     n_users, n_items = Checkins_table.shape
@@ -187,10 +198,15 @@ def main():
     ncf_model.summary()
 
     ds_train, ds_val = make_tf_dataset(df_train, ["interaction"])
-    ds_test, _ = make_tf_dataset(df_test, ["interaction"], val_split=0, seed=None)
+    ds_test, _ = make_tf_dataset(df_test, ["interaction"],
+                                 val_split=0, seed=None)
 
-    logdir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(logdir, histogram_freq=1)
+    logdir = os.path.join("logs",
+                          datetime.datetime.now().strftime(
+                              "%Y%m%d-%H%M%S"
+                          ))
+    tensorboard_callback = tf.keras \
+        .callbacks.TensorBoard(logdir, histogram_freq=1)
 
     train_hist = ncf_model.fit(
         ds_train,
@@ -209,6 +225,7 @@ def main():
     data.columns = Checkins_table_columns
     data.index = Checkins_table_rows
     data.to_csv('./result.csv')
+
 
 if __name__ == '__main__':
     main()
