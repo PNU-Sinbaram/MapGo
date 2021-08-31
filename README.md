@@ -18,9 +18,7 @@ directory and fill it with your own secret key pairs.
 
 Here is quick commands for key file generation
 ```bash
-echo "SERVER_ID_ADDRESS=${YOUR_SERVER_ADDRESS}
-NAVER_KEY_ID=${YOUR_NAVER_API_KEY_ID}
-NAVER_SECRET_KEY=${YOUR_NAVER_API_SECRET_KEY}" >> ./client/apikey.properties
+echo -e "SERVER_ADDRESS=${SERVER_ADDRESS}\nNAVER_KEY_ID=${NAVER_API_ID}\nNAVER_SECRET_KEY=${NAVER_API_SECRET}\nNAVER_OPEN_KEY_ID=${NAVER_OPEN_KEY_ID}\nNAVER_OPEN_SECRET_KEY=${NAVER_OPEN_SECRET_KEY}" >> ./client/apikey.properties
 ```
 
 After generate key file, you can build MapGo application using below commands
@@ -31,7 +29,23 @@ bash ./gradlew assembleDebug --stacktrace
 
 ## Server Build Guide
 
-TBA
+You have two options for distributing mapgo server to your environment
+### Docker
+```bash
+docker pull snowapril/mapgo_server
+docker run -e DJANGO_SECRET_KEY=RANDOM_SECRET_KEY -p 8000:8000 snowapril/mapgo_server
+```
+
+### On your local
+```bash
+cd server
+pip install --upgrade pip==21.2.4
+pip install -r requirements.txt
+python3 manage.py makemigrations && python3 manage.py migrate && 	python3 manage.py runserver 0:8000
+```
+
+## Documents
+https://snowapril.notion.site/SW-eeb1ec6eb0194c40b3b8c2a9445933bd
 
 ## Figma
 ![image](https://user-images.githubusercontent.com/24654975/124858409-f45bdd80-dfe8-11eb-9805-fd11302c2b8e.png)
