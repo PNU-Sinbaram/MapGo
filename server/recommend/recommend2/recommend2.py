@@ -49,12 +49,20 @@ class recommend2:
         locationPosList = dict(zip(locationNameList, locationPosList))
 
         duplicatedColumn = set(df.columns.values.tolist()) & set(locationNameList)
-        recommendPlaces = df[duplicatedColumn].loc[UserID].sort_values(axis=0, ascending=False)
-        partialIndex = round(recommendPlaces.count()*(epsilon/100))
-        if partialIndex < 5:
-            partialIndex = 5
-        recommendPlaces = recommendPlaces[:partialIndex]
-        recommendPlaces = recommendPlaces.sample(n=5).sort_values(axis=0, ascending=False)
+        try:
+            recommendPlaces = df[duplicatedColumn].loc[UserID].sort_values(axis=0, ascending=False)
+        except:
+            return None
+        if recommendPlaces.count() is 0:
+            return None
+        if recommendPlaces.count()>=5:
+            partialIndex = round(recommendPlaces.count()*(epsilon/100))
+            if partialIndex < 5:
+                partialIndex = 5
+            recommendPlaces = recommendPlaces[:partialIndex]
+            recommendPlaces = recommendPlaces.sample(n=5).sort_values(axis=0, ascending=False)
+        else:
+            recommendPlaces = recommendPlaces.sort_values(axis=0, ascending=False)
         for placeName in recommendPlaces.index:
             recommendResult.append({"name": placeName, 
                                     "lat": round(locationPosList[placeName]["lat"], 6), 
