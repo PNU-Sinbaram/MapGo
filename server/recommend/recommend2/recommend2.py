@@ -29,7 +29,7 @@ class recommend2:
         Returns:
             2-D List : List of recommended place. Each element has place name, latitude, longitude, filtering
         """
-
+        epsilon = int(epsilon)
         fileDirectory = os.path.dirname(__file__)
         df = pd.read_csv(fileDirectory+'/recommendTable_'+str(date.today())+'.csv') 
         df = df.set_index('Unnamed: 0')
