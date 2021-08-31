@@ -114,7 +114,7 @@ class MapWrapper(
     fun setMarkerOnRecommendation(recommends: List<RecommendationModel>) {
         recommends.forEach {
             val marker: Marker = Marker()
-            marker.position = LatLng(it.latitude as Double, it.long as Double)
+            marker.position = LatLng(it.lat.toDouble(), it.long.toDouble())
             marker.map = mNaverMap
         }
     }
