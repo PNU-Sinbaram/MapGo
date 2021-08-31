@@ -16,4 +16,5 @@
     <string name="sns_feed_contents_hint">본문</string>
     <string name="recommend_text_hint">추천 키워드 (ex: 카페 디저트 분위기)</string>
     <string name="recommend_button">Recommend</string>
+    <string name="address_text_hint">목적지 입력</string>
 </resources>
