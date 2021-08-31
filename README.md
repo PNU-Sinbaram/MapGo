@@ -45,6 +45,8 @@ python3 manage.py makemigrations && python3 manage.py migrate && 	python3 manage
 ```
 
 ## Documents
+[![image](https://user-images.githubusercontent.com/24654975/131485708-a38a6988-e4f6-4287-ac80-472c594d75da.png)](https://snowapril.notion.site/SW-eeb1ec6eb0194c40b3b8c2a9445933bd)
+
 https://snowapril.notion.site/SW-eeb1ec6eb0194c40b3b8c2a9445933bd
 
 ## Figma
