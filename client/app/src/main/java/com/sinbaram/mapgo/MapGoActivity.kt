@@ -68,6 +68,9 @@ class MapGoActivity :
     // Profile data
     private var mProfile: ProfileModel = ProfileModel()
 
+    // Navigator
+    private var mNavigator: Navigator? = null
+
     companion object {
         val TAG: String = MapGoActivity::class.java.simpleName
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -320,7 +323,7 @@ class MapGoActivity :
                 }
                 NAVIGATION_ACTIVITY_CODE -> {
                     if (extras.containsKey("Destination"))
-                        extras["Destination"] as String
+                        mNavigator = Navigator(mMap.getCurrentLocation(), extras["Destination"] as String)
                 }
             }
         }
