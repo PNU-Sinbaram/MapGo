@@ -37,8 +37,11 @@ class STCViewSet(viewsets.ViewSet):
                 UserID, latitude, longitude, epsilon
             )
 
-            result = {"result": requestResult1+requestResult2}
+            if requestResult2 is not None:
+                result = {"result": requestResult1+requestResult2}
+            else:
+                result = {"result": requestResult1}
             jsonRequest = json.dumps(result, ensure_ascii=False)
 
-            return Response(json.JSONDecoder().decode(jsonRequest), status=200)
+            return Response(json.JSONDecoder().decode(jsonRequest)["result"], status=200)
         return Response(serializer.errors, status=400)
