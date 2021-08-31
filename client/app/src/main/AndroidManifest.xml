@@ -60,6 +60,30 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".NewFeedActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Theme.MaterialComponents.Dialog.Alert"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".RecommendActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Theme.MaterialComponents.Dialog.Alert"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- "AR Required" app, requires "Google Play Services for AR" (ARCore)
              to be installed, as the app does not include any non-AR features. -->
         <meta-data android:name="com.google.ar.core" android:value="required" />
