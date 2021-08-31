@@ -23,6 +23,8 @@ class PostImageSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    writer = UserSerializer(read_only=True)
+
     class Meta:
 
         """Create serializer for comment in model Post"""
