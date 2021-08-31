@@ -8,7 +8,7 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
-import com.sinbaram.mapgo.Model.Recommendation
+import com.sinbaram.mapgo.Model.RecommendationModel
 import kotlin.reflect.KFunction1
 
 class MapWrapper(
@@ -111,7 +111,7 @@ class MapWrapper(
         return mCurrentLocation
     }
 
-    fun setMarkerOnRecommendation(recommends: List<Recommendation>) {
+    fun setMarkerOnRecommendation(recommends: List<RecommendationModel>) {
         recommends.forEach {
             val marker: Marker = Marker()
             marker.position = LatLng(it.latitude as Double, it.long as Double)

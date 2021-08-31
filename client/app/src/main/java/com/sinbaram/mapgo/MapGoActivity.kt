@@ -12,14 +12,12 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.View
 import android.widget.PopupMenu
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import com.google.ar.sceneform.math.Vector3
-import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.Symbol
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.API.ServerAPI
@@ -27,7 +25,7 @@ import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.AR.Helper.TransformHelper
 import com.sinbaram.mapgo.Model.ProfileModel
-import com.sinbaram.mapgo.Model.Recommendation
+import com.sinbaram.mapgo.Model.RecommendationModel
 import com.sinbaram.mapgo.Model.SymbolRenderable
 import com.sinbaram.mapgo.databinding.ActivityMapgoBinding
 import retrofit2.Call
@@ -68,7 +66,7 @@ class MapGoActivity :
     private var mSymbolNodes: List<SymbolRenderable> = mutableListOf()
 
     // Profile data
-    private var mProfile: ProfileModel? = null
+    private var mProfile: ProfileModel = ProfileModel()
 
     companion object {
         val TAG: String = MapGoActivity::class.java.simpleName
@@ -189,6 +187,30 @@ class MapGoActivity :
         }
     }
 
+    /** Get recommendations with keywords from mapgo server */
+    fun getRecommendations(keywords: List<String>) {
+        val loc = mMap.getCurrentLocation()
+        val query = keywords.joinToString(" ")
+        val serverAPI = ServerAPI.GetClient()!!.create(ServerClient::class.java)
+        val apiCall : Call<List<RecommendationModel>> = serverAPI.GetRecommendations(
+            mProfile!!.nickname!!,
+            loc.latitude.toFloat(),
+            loc.longitude.toFloat(),
+            50,
+            query
+        )
+        apiCall.enqueue(object: Callback<List<RecommendationModel>> {
+            override fun onResponse(call: Call<List<RecommendationModel>>, response: Response<List<RecommendationModel>>) {
+                if (response.code() == 200) {
+                    mMap.setMarkerOnRecommendation(response.body()!!)
+                }
+            }
+            override fun onFailure(call: Call<List<RecommendationModel>>, t: Throwable) {
+                Log.d(TAG, "Cannot get recommendations $query")
+            }
+        })
+    }
+
     override fun onResume() {
         super.onResume()
         // Connect magnetic field sensor (나침반)
@@ -250,29 +272,6 @@ class MapGoActivity :
         }
     }
 
-    fun getRecommendations(keywords: List<String>) {
-        val loc = mMap.getCurrentLocation()
-        val query = keywords.joinToString(" ")
-        val serverAPI = ServerAPI.GetClient()!!.create(ServerClient::class.java)
-        val apiCall : Call<List<Recommendation>> = serverAPI.GetRecommendations(
-            mProfile!!.nickname!!,
-            loc.latitude.toFloat(),
-            loc.longitude.toFloat(),
-            50,
-            query
-        )
-        apiCall.enqueue(object: Callback<List<Recommendation>> {
-            override fun onResponse(call: Call<List<Recommendation>>, response: Response<List<Recommendation>>) {
-                if (response.code() == 200) {
-                    mMap.setMarkerOnRecommendation(response.body()!!)
-                }
-            }
-            override fun onFailure(call: Call<List<Recommendation>>, t: Throwable) {
-                Log.d(TAG, "Cannot get recommendations $query")
-            }
-        })
-    }
-
     fun showPopup(v : View){
         val popup = PopupMenu(this, v)
         val inflater: MenuInflater = popup.menuInflater
@@ -281,13 +280,12 @@ class MapGoActivity :
             when(menuItem.itemId){
                 R.id.menu_new_feed-> {
                     val intent = Intent(this, NewFeedActivity::class.java).apply {
-                        if (mProfile != null)
-                            intent.putExtra("Profile", mProfile)
+                        intent.putExtra("Profile", mProfile)
                     }
                     startActivityForResult(intent, NEWFEED_ACTIVITY_CODE)
                 }
                 R.id.menu_keyword-> {
-
+                    getRecommendations(listOf("카페", "디저트"))
                 }
             }
             true

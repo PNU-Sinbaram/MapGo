@@ -1,10 +1,9 @@
 package com.sinbaram.mapgo.API
 
-import com.sinbaram.mapgo.Model.BuildingQuery
-import com.sinbaram.mapgo.Model.ImageQuery
+import com.sinbaram.mapgo.Model.BuildingModel
+import com.sinbaram.mapgo.Model.ImageModel
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Query
 
@@ -18,7 +17,7 @@ interface SearchClient {
     fun SearchBuilding(
         @Query("query") query: String,
         @Query("display") displayCount: Int
-    ): Call<BuildingQuery>
+    ): Call<BuildingModel>
 
     /**
      * Search images with given informations
@@ -30,5 +29,5 @@ interface SearchClient {
         @Query("query") query: String,
         @Query("display") displayCount: Int,
         @Query("filter") filter: String
-    ): Call<ImageQuery>
+    ): Call<ImageModel>
 }

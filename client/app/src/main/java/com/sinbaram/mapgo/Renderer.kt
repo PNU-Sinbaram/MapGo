@@ -26,7 +26,7 @@ import com.google.ar.sceneform.ux.BaseArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import com.sinbaram.mapgo.API.NaverAPI
 import com.sinbaram.mapgo.API.SearchClient
-import com.sinbaram.mapgo.Model.ImageQuery
+import com.sinbaram.mapgo.Model.ImageModel
 import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
@@ -92,11 +92,11 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
             .thenAccept(
                 Consumer { viewRenderable: ViewRenderable ->
                     val openAPI = NaverAPI.GetOpenAPIClient()!!.create(SearchClient::class.java)
-                    val call : Call<ImageQuery> = openAPI.SearchImage(query, 1, "large")
-                    call.enqueue(object: Callback<ImageQuery> {
-                        override fun onResponse(call: Call<ImageQuery>, response: Response<ImageQuery>) {
+                    val call : Call<ImageModel> = openAPI.SearchImage(query, 1, "large")
+                    call.enqueue(object: Callback<ImageModel> {
+                        override fun onResponse(call: Call<ImageModel>, response: Response<ImageModel>) {
                             if (response.code() == 200) {
-                                val responseQuery: ImageQuery = response.body()!!
+                                val responseQuery: ImageModel = response.body()!!
                                 if (!responseQuery.items.isEmpty()) {
                                     val imageView: ImageView = viewRenderable.view as ImageView
                                     Picasso.get()
@@ -106,7 +106,7 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
                             }
                         }
 
-                        override fun onFailure(call: Call<ImageQuery>, t: Throwable) {
+                        override fun onFailure(call: Call<ImageModel>, t: Throwable) {
                             Log.d(TAG, "Cannot get image search with query $query")
                         }
 
