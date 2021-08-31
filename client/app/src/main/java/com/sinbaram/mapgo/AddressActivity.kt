@@ -18,7 +18,7 @@ class AddressActivity: AppCompatActivity() {
     inner class JsInterface {
         @JavascriptInterface
         @SuppressWarnings("unused")
-        fun processData(data: String) {
+        fun processDATA(data: String) {
             val extra = Bundle()
             val intent = Intent()
             extra.putString("data", data)
