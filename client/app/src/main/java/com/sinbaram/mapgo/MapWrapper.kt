@@ -28,6 +28,9 @@ class MapWrapper(
     // Rendering callback
     private var mRenderCallback: KFunction1<MutableList<Symbol>, Unit>
 
+    // Navigation Path
+    private var mPath = PathOverlay()
+
     companion object {
         val TAG: String = MapWrapper::class.java.simpleName
 
@@ -88,8 +91,12 @@ class MapWrapper(
             } else {
                 // Search nearby places
                 collectNearbySymbols(mCurrentLocation)
-            }
+             }
         }
+    }
+
+    fun checkMapInitialized(): Boolean {
+        return !mCameraFirstMove
     }
 
     fun collectNearbySymbols(location: Location) {
@@ -121,8 +128,11 @@ class MapWrapper(
     }
 
     fun addPathOverlay(paths: List<LatLng>) {
-        val path = PathOverlay()
-        path.coords = paths
-        path.map = mNaverMap
+        mPath.coords = paths
+        mPath.map = mNaverMap
+    }
+
+    fun getCurrentPath(): PathOverlay {
+        return mPath
     }
 }
