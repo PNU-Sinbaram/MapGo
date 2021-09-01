@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.View
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
@@ -25,7 +26,7 @@ import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.API.ServerAPI
 import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
-import com.sinbaram.mapgo.AR.Helper.TransformHelper
+import com.sinbaram.mapgo.AR.Helper.MathUtilHelper
 import com.sinbaram.mapgo.Model.DirectionModel
 import com.sinbaram.mapgo.Model.ProfileModel
 import com.sinbaram.mapgo.Model.RecommendationModel
@@ -88,15 +89,16 @@ class MapGoActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Binding mapgo activity layout
+        mBinding = ActivityMapgoBinding.inflate(layoutInflater)
+
         // Show License text
+        mMessageSnackbarHelper.setParentView(mBinding.naverMap)
         mMessageSnackbarHelper.showMessageWithDismiss(
             this,
             "This application runs on Google Play Services for AR (ARCore), " +
                 "which is provided by Google LLC and governed by the Google Privacy Policy"
         )
-
-        // Binding mapgo activity layout
-        mBinding = ActivityMapgoBinding.inflate(layoutInflater)
 
         supportFragmentManager.addFragmentOnAttachListener(this)
 
@@ -128,10 +130,8 @@ class MapGoActivity :
 
         // Set profile button listener
         mBinding.profileButton.setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java).apply {
-                if (mProfile != null)
-                    intent.putExtra("Profile", mProfile)
-            }
+            val intent = Intent(this, ProfileActivity::class.java)
+            intent.putExtra("Profile", mProfile)
             startActivityForResult(intent, PROFILE_ACTIVITY_CODE)
         }
 
@@ -141,7 +141,36 @@ class MapGoActivity :
 
     /** Update the application in given frame */
     private fun onUpdate(frametime: FrameTime) {
+        if (!mMap.checkMapInitialized())
+            return
 
+        // Set direction for living node
+        mSymbolNodes.forEach {
+            if (it.anchor != null) {
+                // Calculate degree between current location to symbol location
+                val targetLocation = Location("")
+                targetLocation.latitude = it.symbol.position.latitude
+                targetLocation.longitude = it.symbol.position.longitude
+                val degree = (360 - ((MathUtilHelper.calculateBearing(mMap.getCurrentLocation(), targetLocation) + 360) % 360))
+
+                // Transform euler degree to world coordinates
+                val y = 0.0f
+                val x =
+                    (NEARBY_RADIUS_WORLD_COORD * cos(PI * degree / 180)).toFloat()
+                val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
+
+                // Print Symbol informations for debugging purpose
+                Log.d(
+                    TAG,
+                    String.format(
+                        "Symbol(%s), Location(%f, %f), WorldCoord(%f, %f, %f), degree(%f)",
+                        it.symbol.caption, it.symbol.position.latitude, it.symbol.position.longitude,
+                        x, y, z, degree
+                    )
+                )
+                mRenderer.renewAnchorTransform(it.anchor!!, Vector3(x, y, z))
+            }
+        }
     }
 
     /**
@@ -159,30 +188,8 @@ class MapGoActivity :
 
         // Add new collected nodes to render list
         symbolNodes.subtract(mSymbolNodes).forEach {
-            // Calculate degree between current location to symbol location
-            val targetLocation = Location("")
-            targetLocation.latitude = it.symbol.position.latitude
-            targetLocation.longitude = it.symbol.position.longitude
-            val degree = (360 - ((TransformHelper.calculateBearing(mMap.getCurrentLocation(), targetLocation) + 360) % 360))
-
-            // Transform euler degree to world coordinates
-            val y = 0.0f
-            val x =
-                (NEARBY_RADIUS_WORLD_COORD * cos(PI * degree / 180)).toFloat()
-            val z = (-1 * NEARBY_RADIUS_WORLD_COORD * sin(PI * degree / 180)).toFloat()
-
-            // Print Symbol informations for debugging purpose
-            Log.d(
-                TAG,
-                String.format(
-                    "Symbol(%s), Location(%f, %f), WorldCoord(%f, %f, %f), degree(%f)",
-                    it.symbol.caption, it.symbol.position.latitude, it.symbol.position.longitude,
-                    x, y, z, degree
-                )
-            )
-
             // Add new renderable node
-            it.anchor = mRenderer.createAnchor(Vector3(x, y, z))
+            it.anchor = mRenderer.createAnchor()
             // Create image symbol and attach to anchor
             mRenderer.createImageSymbol(Vector3(0.0f, 1.0f, 0.0f), it.symbol.caption)
                 .setParent(it.anchor)
@@ -199,12 +206,6 @@ class MapGoActivity :
 
         // Swap old node list to new one
         mSymbolNodes = symbolNodes
-
-        // Set direction for living node
-        mSymbolNodes.forEach {
-            if (it.anchor != null)
-                mRenderer.renewAnchorDirection(it.anchor!!)
-        }
     }
 
     /** Get recommendations with keywords from mapgo server */
@@ -232,6 +233,14 @@ class MapGoActivity :
 
     /** Process navigation direction data model */
     fun processDirection(direction: DirectionModel) {
+        if (direction.code != 0) {
+            mMessageSnackbarHelper.showMessageWithDismiss(
+                this,
+                direction.message
+            )
+            return
+        }
+
         val directionPath = direction.route.traOptimal[0]
         val paths: MutableList<LatLng> = mutableListOf()
         directionPath.path.forEach {
@@ -336,8 +345,7 @@ class MapGoActivity :
             val extras: Bundle = data!!.extras!!
             when (requestCode) {
                 PROFILE_ACTIVITY_CODE -> {
-                    if (extras.containsKey("Profile"))
-                        mProfile = extras["Profile"] as ProfileModel
+                    mProfile = extras["Profile"] as ProfileModel
                 }
                 NEWFEED_ACTIVITY_CODE -> {
 
