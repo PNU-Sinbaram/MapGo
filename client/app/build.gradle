@@ -54,6 +54,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
     // 네이버 지도 SDK
     implementation 'com.naver.maps:map-sdk:3.12.0'
     // Obj - a simple Wavefront OBJ file loader
