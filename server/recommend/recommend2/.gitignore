@@ -1,0 +1,7 @@
+tools/GoogleMapsReviewScraper/chromedriver
+tools/GoogleMapsReviewScraper/errors.txt
+tools/GoogleMapsReviewScraper/reviewer.txt
+tools/nearbyPlaces/getNearbyPlacesResult.csv
+tools/nearbyPlaces/location
+checkin_history
+recommendTable*
