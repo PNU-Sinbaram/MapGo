@@ -39,7 +39,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var mBinding: ActivityProfileBinding
 
     // Profile model
-    private val mProfileModel = ProfileModel()
+    private lateinit var mProfileModel: ProfileModel
 
     companion object {
         val REQUEST_PICTURE_CAPTURE = 1
@@ -51,6 +51,11 @@ class ProfileActivity : AppCompatActivity() {
 
         // Binding mapgo activity layout
         mBinding = ActivityProfileBinding.inflate(layoutInflater)
+
+        mProfileModel = intent.getParcelableExtra("Profile")!!
+
+        mBinding.textInputLayout.editText!!.setText(mProfileModel.nickname)
+        mBinding.imageButton.setImageBitmap(mProfileModel.profile)
 
         // Check required permissions and request.
         val bCameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -94,6 +99,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         mBinding.cancelButton.setOnClickListener {
+            setResult(RESULT_CANCELED, intent)
             finish()
         }
 
