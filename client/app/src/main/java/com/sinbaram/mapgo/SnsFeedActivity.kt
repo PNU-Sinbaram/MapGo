@@ -5,10 +5,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.MapFragment
+import com.naver.maps.map.NaverMap
+import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.overlay.Marker
 import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.API.ServerPostAPI
 import com.sinbaram.mapgo.Model.Comment
@@ -17,13 +24,14 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SnsFeedActivity : AppCompatActivity() {
-    val userId : Int = 1 // this value will get from MapGoActivity
+class SnsFeedActivity : AppCompatActivity(), OnMapReadyCallback {
+    val userId : Int = 2 // this value will get from MapGoActivity
     val baseurl = BuildConfig.SERVER_ADDRESS
     val postImageList = mutableListOf<String>()
     val commentList = mutableListOf<Map<String, String>>()
     val likerList = mutableListOf<Int>()
     val serverAPI = ServerPostAPI.GetSnsClient()!!.create(ServerClient::class.java)
+    val marker = Marker()
     lateinit var viewpager : ViewPager2
     lateinit var recycler : RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,9 +44,10 @@ class SnsFeedActivity : AppCompatActivity() {
         val writerName : String = postInfo.writer.username
         val writerImage : String = baseurl + postInfo.writer.picture
         val postcontent : String = postInfo.contents
+        val postTime : String = postInfo.postTime.split(".")[0].replace("T", " ")
         val postLat : Double = postInfo.location.lat
         val postLong : Double = postInfo.location.lng
-        val postTime : String = postInfo.postTime.split(".")[0].replace("T", " ")
+        marker.position = LatLng(postLat, postLong)
         val liker = postInfo.like
         var likerCount : Int = 0
         for (likeobj in liker) {
@@ -61,6 +70,14 @@ class SnsFeedActivity : AppCompatActivity() {
         val likedButton = findViewById<ImageButton>(R.id.likedButton)
         val likeCountTextView = findViewById<TextView>(R.id.likeCount)
         recycler = findViewById(R.id.commentRecycler)
+
+        val fm = supportFragmentManager
+        val mapFragment = fm.findFragmentById(R.id.map) as MapFragment?
+            ?: MapFragment.newInstance().also {
+                fm.beginTransaction().add(R.id.map, it).commit()
+            }
+
+        mapFragment.getMapAsync(this)
 
         // set like button visiblity by the user liked/not liked status for post
         val isUserLikedThisPost = likerList.contains(userId)
@@ -108,6 +125,13 @@ class SnsFeedActivity : AppCompatActivity() {
         })
 
         //Log.d("outputtest", postId.toString()+" "+writerName+" "+writerImage+" "+postcontent+" "+postcontent+" "+postImageList+" "+postLat+" "+postLong+" "+postTime)
+    }
+
+    @UiThread
+    override fun onMapReady(map: NaverMap) {
+        marker.map = map
+        val cameraUpdate = CameraUpdate.scrollTo(marker.position)
+        map.moveCamera(cameraUpdate)
     }
 
     fun getPostComment(postId : Int) {
