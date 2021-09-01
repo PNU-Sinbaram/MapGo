@@ -33,9 +33,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.lang.ref.WeakReference
 import java.util.function.Consumer
+import kotlin.reflect.KFunction1
 
 /** AR Renderer class for MapGo Application */
-class Renderer(context: Context, fragmentManager: FragmentManager) :
+class Renderer(
+    context: Context,
+    fragmentManager: FragmentManager,
+    updateCallback: KFunction1<FrameTime, Unit>
+) :
     BaseArFragment.OnTapArPlaneListener,
     BaseArFragment.OnSessionConfigurationListener,
     ArFragment.OnViewCreatedListener {
@@ -48,6 +53,9 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
 
     // Application context for control
     val mContext: Context
+
+    // Frame update callback
+    val mUpdateCallback: KFunction1<FrameTime, Unit>
 
     companion object {
         val TAG: String = Renderer::class.java.simpleName
@@ -64,6 +72,9 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
             // Load sample gltf model for test rendernig
             loadModel("https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb")
         }
+
+        // Set frame update callback
+        mUpdateCallback = updateCallback
     }
 
     fun attachFragment(fragment: Fragment) {
@@ -71,6 +82,7 @@ class Renderer(context: Context, fragmentManager: FragmentManager) :
         mArFragment.setOnSessionConfigurationListener(this)
         mArFragment.setOnViewCreatedListener(this)
         mArFragment.setOnTapArPlaneListener(this)
+        mArFragment.arSceneView.scene.addOnUpdateListener(mUpdateCallback)
     }
 
     /** Create symbol node with given informations */

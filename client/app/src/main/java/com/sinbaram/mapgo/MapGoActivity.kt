@@ -17,6 +17,7 @@ import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
+import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.math.Vector3
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.Symbol
@@ -100,7 +101,11 @@ class MapGoActivity :
         supportFragmentManager.addFragmentOnAttachListener(this)
 
         // Setup Renderer
-        mRenderer = Renderer(applicationContext, supportFragmentManager)
+        mRenderer = Renderer(
+            applicationContext,
+            supportFragmentManager,
+            this::onUpdate
+        )
 
         // Set Sensor manager of this device
         mSensorManager = getSystemService()!!
@@ -132,6 +137,11 @@ class MapGoActivity :
 
         // Pass activity binding root
         setContentView(mBinding.root)
+    }
+
+    /** Update the application in given frame */
+    private fun onUpdate(frametime: FrameTime) {
+
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.sinbaram.mapgo
 
-import android.graphics.Path
 import android.graphics.PointF
 import android.location.Location
 import android.util.Log
