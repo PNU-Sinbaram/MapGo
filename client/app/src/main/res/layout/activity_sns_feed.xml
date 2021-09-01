@@ -60,6 +60,30 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:srcCompat="@tools:sample/avatars" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/content"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="25dp"
+                android:text="TextView"
+                android:textColor="#1C1C1C"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userProfileLayout"
+                app:layout_constraintVertical_bias="0.439" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/imageSlider"
+                android:layout_width="360dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="35dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/content" >
+            </androidx.viewpager2.widget.ViewPager2>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

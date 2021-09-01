@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.sinbaram.mapgo.Model.PostFeedItem
 
@@ -13,6 +14,7 @@ class SnsFeedActivity : AppCompatActivity() {
     val postImageList = mutableListOf<String>()
     val commentList = mutableListOf<Map<String, String>>()
     val likerList = mutableListOf<Int>()
+    lateinit var viewpager : ViewPager2
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sns_feed)
@@ -34,13 +36,19 @@ class SnsFeedActivity : AppCompatActivity() {
             postImageList += baseurl + imageobj.image
         }
 
+        // load views from activity_sns_feed
         val userName = findViewById<TextView>(R.id.userName)
         val userimage = findViewById<ImageView>(R.id.userImage)
         val posttime = findViewById<TextView>(R.id.postTime)
+        val content = findViewById<TextView>(R.id.content)
+        viewpager = findViewById(R.id.imageSlider)
 
+        // set post's username, user image, post time, content
         userName.setText(writerName)
         posttime.setText(postTime)
+        content.setText(postcontent)
         Glide.with(this).load(writerImage).into(userimage)
+        viewpager.adapter = ImageSliderAdapter(this, postImageList)
 
         //Log.d("outputtest", postId.toString()+" "+writerName+" "+writerImage+" "+postcontent+" "+postcontent+" "+postImageList+" "+postLat+" "+postLong+" "+postTime)
     }
