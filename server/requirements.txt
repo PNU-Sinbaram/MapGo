@@ -9,6 +9,5 @@ colorama
 pytz
 six
 urllib3
-sqlite3
 tensorflow-gpu
 typing
