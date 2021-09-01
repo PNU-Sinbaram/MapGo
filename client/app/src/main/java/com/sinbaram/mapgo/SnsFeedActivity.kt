@@ -57,7 +57,20 @@ class SnsFeedActivity : AppCompatActivity() {
         viewpager = findViewById(R.id.imageSlider)
         val commentButton = findViewById<Button>(R.id.commentButton)
         val commentEditText = findViewById<EditText>(R.id.commentEdittext)
+        val unlikedButton = findViewById<ImageButton>(R.id.unlikedButton)
+        val likedButton = findViewById<ImageButton>(R.id.likedButton)
         recycler = findViewById(R.id.commentRecycler)
+
+        // set like button visiblity by the user liked/not liked status for post
+        val isUserLikedThisPost = likerList.contains(userId)
+        if (isUserLikedThisPost) {
+            likedButton.setVisibility(View.VISIBLE)
+            unlikedButton.setVisibility(View.INVISIBLE)
+        }
+        else {
+            likedButton.setVisibility(View.INVISIBLE)
+            unlikedButton.setVisibility(View.VISIBLE)
+        }
 
 
         // set post's username, user image, post time, content
@@ -74,6 +87,18 @@ class SnsFeedActivity : AppCompatActivity() {
         commentButton.setOnClickListener(View.OnClickListener {
             val comment_toPost : String = commentEditText.text.toString()
             uploadPostComment(postId, userId, comment_toPost)
+        })
+
+        unlikedButton.setOnClickListener(View.OnClickListener {
+            setPostLike(postId, userId)
+            unlikedButton.setVisibility(View.INVISIBLE)
+            likedButton.setVisibility(View.VISIBLE)
+        })
+
+        likedButton.setOnClickListener(View.OnClickListener {
+            removePostLike(postId, userId)
+            likedButton.setVisibility(View.INVISIBLE)
+            unlikedButton.setVisibility(View.VISIBLE)
         })
 
         //Log.d("outputtest", postId.toString()+" "+writerName+" "+writerImage+" "+postcontent+" "+postcontent+" "+postImageList+" "+postLat+" "+postLong+" "+postTime)
@@ -116,7 +141,34 @@ class SnsFeedActivity : AppCompatActivity() {
             override fun onFailure(call: Call<String>, t: Throwable) {
                 Log.d("respError", "Failed to post comments : "+t.toString())
             }
+        })
+    }
 
+    fun setPostLike(postId : Int, userId : Int) {
+        val apiCall : Call<String> = serverAPI.AddLike(postId, userId)
+        apiCall.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                Log.d("test", "add like done")
+                likerList+=userId
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.d("respError", "Failed to add like : "+t.toString())
+            }
+        })
+    }
+
+    fun removePostLike(postId : Int, userId : Int) {
+        val apiCall : Call<String> = serverAPI.DeleteLike(postId, userId)
+        apiCall.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                Log.d("test", "remove like done")
+                likerList.remove(userId)
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.d("respError", "Failed to remove like : "+t.toString())
+            }
         })
     }
 }

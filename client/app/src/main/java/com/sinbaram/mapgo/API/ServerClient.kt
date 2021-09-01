@@ -13,6 +13,7 @@ import retrofit2.http.Query
 import retrofit2.http.Path
 import retrofit2.http.Multipart
 import retrofit2.http.Part
+import retrofit2.http.HTTP
 import retrofit2.Call
 
 /** Collections of naver openapi search interface */
@@ -56,5 +57,19 @@ interface ServerClient {
         @Path("id") id: Int,
         @Part("writer") writer: Int,
         @Part("contents") contents: String
+    ) : Call<String>
+
+    @Multipart
+    @POST("Mapgo/sns/post/{id}/like/")
+    fun AddLike(
+        @Path("id") id: Int,
+        @Part("userID") userID: Int
+    ) : Call<String>
+
+    @Multipart
+    @HTTP(method="DELETE", hasBody=true, path="Mapgo/sns/post/{id}/like/")
+    fun DeleteLike(
+        @Path("id") id: Int,
+        @Part("userID") userID: Int
     ) : Call<String>
 }

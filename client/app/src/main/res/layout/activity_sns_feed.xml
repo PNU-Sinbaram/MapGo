@@ -108,6 +108,29 @@
                 app:layout_constraintLeft_toRightOf="@id/commentEdittext"
                 app:layout_constraintTop_toBottomOf="@id/imageSlider" />
 
+
+            <ImageButton
+                android:id="@+id/unlikedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/heart_unfilled"
+                android:layout_marginTop="38dp"
+                android:layout_marginLeft="10dp"
+                android:background="@null"
+                app:layout_constraintLeft_toRightOf="@+id/commentButton"
+                app:layout_constraintTop_toBottomOf="@id/imageSlider"/>
+
+            <ImageButton
+                android:id="@+id/likedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/heart_filled"
+                android:layout_marginTop="38dp"
+                android:layout_marginLeft="10dp"
+                android:background="@null"
+                app:layout_constraintLeft_toRightOf="@+id/commentButton"
+                app:layout_constraintTop_toBottomOf="@id/imageSlider"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/commentRecycler"
                 android:layout_width="match_parent"
