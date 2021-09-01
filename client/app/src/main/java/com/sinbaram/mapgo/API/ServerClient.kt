@@ -4,11 +4,13 @@ import com.sinbaram.mapgo.Model.CheckInResponse
 import com.sinbaram.mapgo.Model.CheckInRequest
 import com.sinbaram.mapgo.Model.Recommendation
 import com.sinbaram.mapgo.Model.PostFeedItem
+import com.sinbaram.mapgo.Model.Comment
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Path
 import retrofit2.Call
 
 /** Collections of naver openapi search interface */
@@ -36,6 +38,13 @@ interface ServerClient {
         @Query("keywords") keywords: String
     ): Call<List<Recommendation>>
 
+    /** Get posts from mapgo server */
     @GET("Mapgo/sns/post/")
     fun GetPosts() : Call<List<PostFeedItem>>
+
+    /** Get comments from post with {id} */
+    @GET("Mapgo/sns/post/{id}/comment/")
+    fun GetComments(
+        @Path("id") id: Int
+    ) : Call<List<Comment>>
 }
