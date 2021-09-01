@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 from sys import platform
@@ -335,9 +334,9 @@ def main(argv):
     VERBOSE = 0
 
     try:
-        opts, args = getopt.getopt(argv[1:],
-                                   "hm:i:v:",
-                                   ["help", "mode=", "input=", "verbose="])
+        opts, _ = getopt.getopt(argv[1:],
+                                "hm:i:v:",
+                                ["help", "mode=", "input=", "verbose="])
     except getopt.GetoptError:
         print("invalid arguments.")
         crawlhelp()

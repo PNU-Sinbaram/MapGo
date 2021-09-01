@@ -17,8 +17,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
 
-from datetime import date
-
 from typing import List
 
 
@@ -208,7 +206,7 @@ def main():
     tensorboard_callback = tf.keras \
         .callbacks.TensorBoard(logdir, histogram_freq=1)
 
-    train_hist = ncf_model.fit(
+    ncf_model.fit(
         ds_train,
         validation_data=ds_val,
         epochs=1,

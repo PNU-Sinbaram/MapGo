@@ -1,14 +1,14 @@
 Review scraper from Google Maps.
 
 ## Installation
-1. clone repository.
+1.  clone repository.
 <pre><code>git clone https://github.com/lijm1358/GoogleMapsReviewScraper.git</code></pre>
-2. install ChromeDriver and unzip inside of directory.  (https://chromedriver.chromium.org/downloads). check version of Chrome before download ChromeDriver.
-3. install requirements using pip.
+2.  install ChromeDriver and unzip inside of directory.  (https://chromedriver.chromium.org/downloads). check version of Chrome before download ChromeDriver.
+3.  install requirements using pip.
 <pre><code>pip install -r requirements.txt</code></pre>
 
 ## Usage
-```
+```bash
 python mapscraper -m [MODE] -i [FILE or STRING]
 
   -m [MODE], --mode [MODE]

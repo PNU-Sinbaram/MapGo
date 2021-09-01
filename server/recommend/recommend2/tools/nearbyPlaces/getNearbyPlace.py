@@ -20,7 +20,6 @@ def searchPlace():
     latitude-890 makes area circle move down,
     longitude+1123 makes area circle move right.
     '''
-
     filename = "./location"
     f = open(filename, "r")
 
