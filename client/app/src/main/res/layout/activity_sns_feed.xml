@@ -131,6 +131,18 @@
                 app:layout_constraintLeft_toRightOf="@+id/commentButton"
                 app:layout_constraintTop_toBottomOf="@id/imageSlider"/>
 
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="55dp"
+                android:layout_marginTop="50dp"
+                android:text="0"
+                android:textColor="#730000"
+                android:textSize="15sp"
+                app:layout_constraintLeft_toRightOf="@id/commentButton"
+                app:layout_constraintTop_toBottomOf="@id/imageSlider" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/commentRecycler"
                 android:layout_width="match_parent"

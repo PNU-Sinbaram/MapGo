@@ -1,6 +1,5 @@
 package com.sinbaram.mapgo
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
-import com.sinbaram.mapgo.API.ServerAPI
 import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.API.ServerPostAPI
 import com.sinbaram.mapgo.Model.Comment
@@ -42,9 +40,11 @@ class SnsFeedActivity : AppCompatActivity() {
         val postLong : Double = postInfo.location.lng
         val postTime : String = postInfo.postTime.split(".")[0].replace("T", " ")
         val liker = postInfo.like
+        var likerCount : Int = 0
         for (likeobj in liker) {
             likerList += likeobj.liker
         }
+        likerCount = likerList.size
         for (imageobj in postInfo.postImage) {
             postImageList += baseurl + imageobj.image
         }
@@ -59,6 +59,7 @@ class SnsFeedActivity : AppCompatActivity() {
         val commentEditText = findViewById<EditText>(R.id.commentEdittext)
         val unlikedButton = findViewById<ImageButton>(R.id.unlikedButton)
         val likedButton = findViewById<ImageButton>(R.id.likedButton)
+        val likeCountTextView = findViewById<TextView>(R.id.likeCount)
         recycler = findViewById(R.id.commentRecycler)
 
         // set like button visiblity by the user liked/not liked status for post
@@ -89,16 +90,21 @@ class SnsFeedActivity : AppCompatActivity() {
             uploadPostComment(postId, userId, comment_toPost)
         })
 
+        likeCountTextView.setText(likerCount.toString())
         unlikedButton.setOnClickListener(View.OnClickListener {
             setPostLike(postId, userId)
             unlikedButton.setVisibility(View.INVISIBLE)
             likedButton.setVisibility(View.VISIBLE)
+            likerCount++
+            likeCountTextView.setText(likerCount.toString())
         })
 
         likedButton.setOnClickListener(View.OnClickListener {
             removePostLike(postId, userId)
             likedButton.setVisibility(View.INVISIBLE)
             unlikedButton.setVisibility(View.VISIBLE)
+            likerCount--
+            likeCountTextView.setText(likerCount.toString())
         })
 
         //Log.d("outputtest", postId.toString()+" "+writerName+" "+writerImage+" "+postcontent+" "+postcontent+" "+postImageList+" "+postLat+" "+postLong+" "+postTime)
