@@ -18,12 +18,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import com.google.ar.sceneform.math.Vector3
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.Symbol
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.API.ServerAPI
 import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.AR.Helper.SnackbarHelper
 import com.sinbaram.mapgo.AR.Helper.TransformHelper
+import com.sinbaram.mapgo.Model.DirectionModel
 import com.sinbaram.mapgo.Model.ProfileModel
 import com.sinbaram.mapgo.Model.RecommendationModel
 import com.sinbaram.mapgo.Model.SymbolRenderable
@@ -69,7 +71,7 @@ class MapGoActivity :
     private var mProfile: ProfileModel = ProfileModel()
 
     // Navigator
-    private var mNavigator: Navigator? = null
+    private lateinit var mNavigator: Navigator
 
     companion object {
         val TAG: String = MapGoActivity::class.java.simpleName
@@ -110,6 +112,9 @@ class MapGoActivity :
             supportFragmentManager,
             this::renderNearbySymbols
         )
+
+        // Pass processDirection navigator
+        mNavigator = Navigator(this::processDirection)
 
         // Set menu button listener
         mBinding.menuButton.setOnClickListener {
@@ -213,6 +218,16 @@ class MapGoActivity :
                 Log.d(TAG, "Cannot get recommendations")
             }
         })
+    }
+
+    /** Process navigation direction data model */
+    fun processDirection(direction: DirectionModel) {
+        val directionPath = direction.route.traOptimal[0]
+        val paths: MutableList<LatLng> = mutableListOf()
+        directionPath.path.forEach {
+            paths.add(LatLng(it[1], it[0]))
+        }
+        mMap.addPathOverlay(paths)
     }
 
     override fun onResume() {
@@ -323,7 +338,7 @@ class MapGoActivity :
                 }
                 NAVIGATION_ACTIVITY_CODE -> {
                     if (extras.containsKey("Destination"))
-                        mNavigator = Navigator(mMap.getCurrentLocation(), extras["Destination"] as String)
+                        mNavigator.startNavigation(mMap.getCurrentLocation(), extras["Destination"] as String)
                 }
             }
         }

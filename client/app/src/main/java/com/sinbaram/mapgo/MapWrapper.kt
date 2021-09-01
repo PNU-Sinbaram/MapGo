@@ -1,5 +1,6 @@
 package com.sinbaram.mapgo
 
+import android.graphics.Path
 import android.graphics.PointF
 import android.location.Location
 import android.util.Log
@@ -7,6 +8,7 @@ import androidx.fragment.app.FragmentManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.Model.RecommendationModel
 import kotlin.reflect.KFunction1
@@ -117,5 +119,11 @@ class MapWrapper(
             marker.position = LatLng(it.lat.toDouble(), it.long.toDouble())
             marker.map = mNaverMap
         }
+    }
+
+    fun addPathOverlay(paths: List<LatLng>) {
+        val path = PathOverlay()
+        path.coords = paths
+        path.map = mNaverMap
     }
 }
