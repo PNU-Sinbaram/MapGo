@@ -2,10 +2,8 @@ package com.sinbaram.mapgo.Model
 
 import java.io.Serializable
 
-class PostFeed : ArrayList<PostFeedItem>()
-
 data class PostFeedItem(
-    val comment: ArrayList<Comment>,
+    val comment: List<Comment>,
     val contents: String,
     val like: List<Like>,
     val location: Location,
@@ -15,8 +13,6 @@ data class PostFeedItem(
     val totalLikes: Int,
     val writer: Writer
 ) : Serializable
-
-class CommentResponse : ArrayList<Comment>()
 
 data class Comment(
     val writer: Writer,
@@ -40,8 +36,6 @@ data class PostImage(
     val image: String,
     val post: Int
 ) : Serializable
-
-class LikeResponse : ArrayList<Like>()
 
 data class Like(
     val liker: Int,

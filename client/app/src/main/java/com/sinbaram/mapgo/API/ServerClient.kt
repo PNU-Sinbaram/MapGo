@@ -3,6 +3,7 @@ package com.sinbaram.mapgo.API
 import com.sinbaram.mapgo.Model.CheckInResponse
 import com.sinbaram.mapgo.Model.CheckInRequest
 import com.sinbaram.mapgo.Model.Recommendation
+import com.sinbaram.mapgo.Model.PostFeedItem
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -34,4 +35,7 @@ interface ServerClient {
         @Query("epsilon") epsilon: Int,
         @Query("keywords") keywords: String
     ): Call<List<Recommendation>>
+
+    @GET("Mapgo/sns/post/")
+    fun GetPosts() : Call<List<PostFeedItem>>
 }
