@@ -13,8 +13,8 @@
 
 ## Client Build Guide
 
-Before build client app, you need to create `apikey.properties` file in client
-directory and fill it with your own secret key pairs.
+Before build client app, you need to create `apikey.properties` file in client directory.
+After that, you need to fill it with your own secret key pairs.
 
 Here is quick commands for key file generation
 ```bash
@@ -29,11 +29,13 @@ bash ./gradlew assembleDebug --stacktrace
 
 ## Server Build Guide
 
-You have two options for distributing mapgo server to your environment
+You have two options for distributing mapgo server to your environment.
+You have to use your own api key in both environment.
+
 ### Docker
 ```bash
 docker pull snowapril/mapgo_server
-docker run -e DJANGO_SECRET_KEY=RANDOM_SECRET_KEY -p 8000:8000 snowapril/mapgo_server
+docker run -e DJANGO_SECRET_KEY=${RANDOM_SECRET_KEY} GOOGLE_PLACES_KEY=${GOOGLE_PLACES_KEY} -p 8000:8000 snowapril/mapgo_server
 ```
 
 ### On your local
@@ -41,6 +43,8 @@ docker run -e DJANGO_SECRET_KEY=RANDOM_SECRET_KEY -p 8000:8000 snowapril/mapgo_s
 cd server
 pip install --upgrade pip==21.2.4
 pip install -r requirements.txt
+export DJANGO_SECRET_KEY=${RANDOM_KEY}
+export GOOGLE_PLACES_KEY=${GOOGLE_PLACES_API_KEY}
 python3 manage.py makemigrations && python3 manage.py migrate && 	python3 manage.py runserver 0:8000
 ```
 
