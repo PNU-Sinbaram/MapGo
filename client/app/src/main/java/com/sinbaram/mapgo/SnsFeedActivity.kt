@@ -4,14 +4,15 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.View
+import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.sinbaram.mapgo.API.ServerAPI
 import com.sinbaram.mapgo.API.ServerClient
+import com.sinbaram.mapgo.API.ServerPostAPI
 import com.sinbaram.mapgo.Model.Comment
 import com.sinbaram.mapgo.Model.PostFeedItem
 import retrofit2.Call
@@ -19,10 +20,12 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class SnsFeedActivity : AppCompatActivity() {
+    val userId : Int = 1 // this value will get from MapGoActivity
     val baseurl = BuildConfig.SERVER_ADDRESS
     val postImageList = mutableListOf<String>()
     val commentList = mutableListOf<Map<String, String>>()
     val likerList = mutableListOf<Int>()
+    val serverAPI = ServerPostAPI.GetSnsClient()!!.create(ServerClient::class.java)
     lateinit var viewpager : ViewPager2
     lateinit var recycler : RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,30 +55,37 @@ class SnsFeedActivity : AppCompatActivity() {
         val posttime = findViewById<TextView>(R.id.postTime)
         val content = findViewById<TextView>(R.id.content)
         viewpager = findViewById(R.id.imageSlider)
+        val commentButton = findViewById<Button>(R.id.commentButton)
+        val commentEditText = findViewById<EditText>(R.id.commentEdittext)
+        recycler = findViewById(R.id.commentRecycler)
+
 
         // set post's username, user image, post time, content
         userName.setText(writerName)
         posttime.setText(postTime)
         content.setText(postcontent)
         Glide.with(this).load(writerImage).into(userimage)
-        viewpager.adapter = ImageSliderAdapter(this, postImageList)
 
-        recycler = findViewById(R.id.commentRecycler)
+        viewpager.adapter = ImageSliderAdapter(this, postImageList)
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.setHasFixedSize(false)
         getPostComment(postId)
+
+        commentButton.setOnClickListener(View.OnClickListener {
+            val comment_toPost : String = commentEditText.text.toString()
+            uploadPostComment(postId, userId, comment_toPost)
+        })
 
         //Log.d("outputtest", postId.toString()+" "+writerName+" "+writerImage+" "+postcontent+" "+postcontent+" "+postImageList+" "+postLat+" "+postLong+" "+postTime)
     }
 
     fun getPostComment(postId : Int) {
         commentList.clear()
-        val serverAPI = ServerAPI.GetClient()!!.create(ServerClient::class.java)
         val apiCall : Call<List<Comment>> = serverAPI.GetComments(postId)
         apiCall.enqueue(object: Callback<List<Comment>> {
             override fun onResponse(call: Call<List<Comment>>, response: Response<List<Comment>>) {
                 if (response.code() == 200) {
-                    var commentResponseList : List<Comment>
+                    val commentResponseList : List<Comment>
                     commentResponseList = response.body()!!
                     for (commentObj in commentResponseList) {
                         val commentMap = mapOf("writer" to commentObj.writer.username, "writerImage" to baseurl+commentObj.writer.picture, "contents" to commentObj.contents)
@@ -90,8 +100,23 @@ class SnsFeedActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
-                Log.d(MapGoActivity.TAG, "Failed to get comments : "+t.toString())
+                Log.d("respError", "Failed to get comments : "+t.toString())
             }
+        })
+    }
+
+    fun uploadPostComment(postId : Int, userId : Int, comment : String) {
+        val apiCall : Call<String> = serverAPI.PostComment(postId, userId, comment)
+        apiCall.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                Log.d("test", "comment done")
+                getPostComment(postId)
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.d("respError", "Failed to post comments : "+t.toString())
+            }
+
         })
     }
 }

@@ -11,6 +11,8 @@ import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.http.Path
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 import retrofit2.Call
 
 /** Collections of naver openapi search interface */
@@ -47,4 +49,12 @@ interface ServerClient {
     fun GetComments(
         @Path("id") id: Int
     ) : Call<List<Comment>>
+
+    @Multipart
+    @POST("Mapgo/sns/post/{id}/comment/")
+    fun PostComment(
+        @Path("id") id: Int,
+        @Part("writer") writer: Int,
+        @Part("contents") contents: String
+    ) : Call<String>
 }

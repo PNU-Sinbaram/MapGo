@@ -70,6 +70,7 @@
                 android:text="TextView"
                 android:textColor="#1C1C1C"
                 android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@+id/imageSlider"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/userProfileLayout"
                 app:layout_constraintVertical_bias="0.439" />
@@ -84,6 +85,29 @@
                 app:layout_constraintTop_toBottomOf="@+id/content" >
             </androidx.viewpager2.widget.ViewPager2>
 
+            <EditText
+                android:id="@+id/commentEdittext"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:ems="10"
+                android:hint="댓글..."
+                android:inputType="textPersonName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageSlider" />
+
+            <Button
+                android:id="@+id/commentButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:text="저장"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toRightOf="@id/commentEdittext"
+                app:layout_constraintTop_toBottomOf="@id/imageSlider" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/commentRecycler"
                 android:layout_width="match_parent"
@@ -92,7 +116,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginEnd="15dp"
                 android:nestedScrollingEnabled="false"
-                app:layout_constraintTop_toBottomOf="@+id/imageSlider"
+                app:layout_constraintTop_toBottomOf="@+id/commentEdittext"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"/>
 
