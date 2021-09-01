@@ -57,6 +57,7 @@ class NavigationActivity: AppCompatActivity() {
         }
 
         mBinding.cancelButton.setOnClickListener {
+            setResult(RESULT_CANCELED, intent)
             finish()
         }
 

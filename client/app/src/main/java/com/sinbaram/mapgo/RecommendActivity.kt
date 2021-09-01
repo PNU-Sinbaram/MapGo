@@ -46,6 +46,7 @@ class RecommendActivity: AppCompatActivity() {
         }
 
         mBinding.cancelButton.setOnClickListener {
+            setResult(RESULT_CANCELED, intent)
             finish()
         }
 

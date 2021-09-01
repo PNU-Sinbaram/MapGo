@@ -75,10 +75,8 @@ class NewFeedActivity: AppCompatActivity() {
         }
 
         mBinding.cancelButton.setOnClickListener {
-            //val resultIntent = Intent()
-            //resultIntent.putExtra("Profile", mProfileModel)
-            //setResult(Activity.RESULT_OK, resultIntent)
-            //finish()
+            setResult(RESULT_CANCELED, intent)
+            finish()
         }
 
         // Pass activity binding root
