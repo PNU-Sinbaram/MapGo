@@ -12,7 +12,6 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.View
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
@@ -22,6 +21,7 @@ import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.math.Vector3
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.Symbol
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.API.ServerAPI
 import com.sinbaram.mapgo.API.ServerClient
@@ -117,7 +117,7 @@ class MapGoActivity :
         mMap = MapWrapper(
             mLocationSource,
             supportFragmentManager,
-            this::renderNearbySymbols
+            this::renderNearby
         )
 
         // Pass processDirection navigator
@@ -177,7 +177,7 @@ class MapGoActivity :
      * @param location : center location of nearby radius
      * rendering nearby symbols with given location
      */
-    private fun renderNearbySymbols(symbols: MutableList<Symbol>) {
+    private fun renderNearby(symbols: MutableList<Symbol>, markers: MutableList<Marker>) {
         // Add symbols with null renderable
         val symbolNodes = mutableListOf<SymbolRenderable>()
         symbols.forEach { symbol: Symbol ->

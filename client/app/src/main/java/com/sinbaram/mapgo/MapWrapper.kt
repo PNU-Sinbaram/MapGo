@@ -10,12 +10,12 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.sinbaram.mapgo.Model.RecommendationModel
-import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction2
 
 class MapWrapper(
     locationSource: FusedLocationSource,
     fragmentManager: FragmentManager,
-    callback: KFunction1<MutableList<Symbol>, Unit>
+    callback: KFunction2<MutableList<Symbol>, MutableList<Marker>, Unit>
 )
     : OnMapReadyCallback {
 
@@ -26,7 +26,7 @@ class MapWrapper(
     private var mCameraFirstMove = true
 
     // Rendering callback
-    private var mRenderCallback: KFunction1<MutableList<Symbol>, Unit>
+    private var mRenderCallback: KFunction2<MutableList<Symbol>, MutableList<Marker>, Unit>
 
     // Navigation Path
     private var mPath = PathOverlay()
@@ -105,14 +105,16 @@ class MapWrapper(
 
         // Query nearby symbols
         val symbols = mutableListOf<Symbol>()
+        val markers = mutableListOf<Marker>()
         mNaverMap.pickAll(cameraPos, MapGoActivity.NEARBY_RADIUS_MAP_COORD).forEach {
             when (it) {
                 is Symbol -> symbols.add(it)
+                is Marker -> markers.add(it)
             }
         }
 
         // Invoke callback on Symbols
-        mRenderCallback(symbols)
+        mRenderCallback(symbols, markers)
     }
 
     fun getCurrentLocation(): Location {
