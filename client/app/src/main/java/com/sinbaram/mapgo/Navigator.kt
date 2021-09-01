@@ -2,7 +2,6 @@ package com.sinbaram.mapgo
 
 import android.location.Location
 import android.util.Log
-import com.naver.maps.map.Symbol
 import com.sinbaram.mapgo.API.DirectionClient
 import com.sinbaram.mapgo.API.GeocodingClient
 import com.sinbaram.mapgo.API.NaverAPI
@@ -42,7 +41,9 @@ class Navigator(callback: KFunction1<DirectionModel, Unit>) {
 
     fun calculatePath(source: Location, destination: Location) {
         val naverAPI = NaverAPI.GetClient()!!.create(DirectionClient::class.java)
-        val apiCall : Call<DirectionModel> = naverAPI.GetDirection(source.toString(), destination.toString())
+        val srcStr = String.format("%.7f,%.7f", source.latitude, source.longitude)
+        val dstStr = String.format("%.7f,%.7f", destination.latitude, destination.longitude)
+        val apiCall : Call<DirectionModel> = naverAPI.GetDirection(srcStr, dstStr)
         apiCall.enqueue(object: Callback<DirectionModel> {
             override fun onResponse(call: Call<DirectionModel>, response: Response<DirectionModel>) {
                 if (response.code() == 200) {
