@@ -82,14 +82,11 @@ class Renderer(
         mArFragment.setOnSessionConfigurationListener(this)
         mArFragment.setOnViewCreatedListener(this)
         mArFragment.setOnTapArPlaneListener(this)
-        mArFragment.arSceneView.scene.addOnUpdateListener(mUpdateCallback)
     }
 
     /** Create symbol node with given informations */
-    fun createAnchor(worldCoord: Vector3): AnchorNode {
+    fun createAnchor(): AnchorNode {
         val anchorNode = AnchorNode()
-        anchorNode.worldPosition = worldCoord
-
         return anchorNode
     }
 
@@ -152,11 +149,23 @@ class Renderer(
         return node
     }
 
-    fun renewAnchorDirection(anchorNode: AnchorNode) {
+    fun createArrowSymbol(localCoord: Vector3): Node {
+        val node = Node();
+        node.isEnabled = false
+        node.localPosition = localCoord
+        node.localScale = Vector3(4.0f, 4.0f, 4.0f)
+        node.setRenderable(mModelRenderable)
+        node.isEnabled = true
+
+        return node
+    }
+
+    fun renewAnchorTransform(anchorNode: AnchorNode, worldCoord: Vector3) {
         val cameraPos = mArFragment.arSceneView.scene.camera.worldPosition
         val direction = Vector3.subtract(cameraPos, anchorNode.worldPosition)
         val lookRotation = Quaternion.lookRotation(direction, Vector3.up())
         anchorNode.worldRotation = lookRotation
+        anchorNode.worldPosition = worldCoord
     }
 
     fun getScene(): Scene {
@@ -203,6 +212,9 @@ class Renderer(
 
         // Fine adjust the maximum frame rate
         arSceneView.setFrameRateFactor(SceneView.FrameRate.FULL)
+
+        // Set onUpdate callback
+        mArFragment.arSceneView.scene.addOnUpdateListener(mUpdateCallback)
     }
 
     /** Create model renderable from gltf model URL and view renderable in advance */
