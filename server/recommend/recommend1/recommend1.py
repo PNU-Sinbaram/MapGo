@@ -48,7 +48,7 @@ class recommend1 :
             print("Error Code:" + rescode)
 
     def LocalAlignment(self, String1, String2, GapPenalty) :
-        Match, MisMatch = 5, -2
+        Match, MisMatch = 15, -5
         DP = []
         for i in range(len(String2)+1) :
             DP.append([0]*(len(String1)+1))
@@ -106,7 +106,7 @@ class recommend1 :
             alig_max = 0
             for y in range(len(reviews['result'])) :
                 try :
-                    alig_score = self.LocalAlignment(reviews['result']['reviews'][y]['text'].replace(" ","").lower(),translated_keyword.replace(" ","").lower(),-epsilon)
+                    alig_score = self.LocalAlignment(reviews['result']['reviews'][y]['text'].replace(" ","").lower(),translated_keyword.replace(" ","").lower(),(epsilon-101))
                     if(max(map(max,alig_score)) > alig_max):
                         alig_max = max(map(max,alig_score))
                 except :
