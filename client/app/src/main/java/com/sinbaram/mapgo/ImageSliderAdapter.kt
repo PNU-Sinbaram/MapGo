@@ -7,8 +7,12 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
+/** ViewPager2 Adapter to show images from post */
 class ImageSliderAdapter(val context: Context, imageList: MutableList<String>) : RecyclerView.Adapter<ImageSliderAdapter.PagerViewHolder>() {
+
     var imagelist = imageList
+
+    /** Initialize ImageView from image_viewpager.xml */
     inner class PagerViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder
         (LayoutInflater.from(parent.context).inflate(R.layout.image_viewpager, parent, false)) {
         val image = itemView.findViewById<ImageView>(R.id.imageView)

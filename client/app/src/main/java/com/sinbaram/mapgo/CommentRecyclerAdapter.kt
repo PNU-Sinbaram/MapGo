@@ -9,10 +9,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
+
+/** Recycler adapter to show comments from List of Map containing content, writer, writer image */
 class CommentRecyclerAdapter internal constructor(var context: Context, list: MutableList<Map<String, String>>?) :
     RecyclerView.Adapter<CommentRecyclerAdapter.ViewHolder>() {
     private var mData: MutableList<Map<String, String>>? = null
 
+    /** initialize views of comment_recycler.xml */
     inner class ViewHolder internal constructor(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         var content: TextView

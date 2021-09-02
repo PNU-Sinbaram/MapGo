@@ -51,6 +51,7 @@ interface ServerClient {
         @Path("id") id: Int
     ) : Call<List<Comment>>
 
+    /** Post comment to post with {id} */
     @Multipart
     @POST("Mapgo/sns/post/{id}/comment/")
     fun PostComment(
@@ -59,6 +60,7 @@ interface ServerClient {
         @Part("contents") contents: String
     ) : Call<String>
 
+    /** add like to post with {id}, as userID */
     @Multipart
     @POST("Mapgo/sns/post/{id}/like/")
     fun AddLike(
@@ -66,6 +68,7 @@ interface ServerClient {
         @Part("userID") userID: Int
     ) : Call<String>
 
+    /** remove like to post with {id}, as userID */
     @Multipart
     @HTTP(method="DELETE", hasBody=true, path="Mapgo/sns/post/{id}/like/")
     fun DeleteLike(

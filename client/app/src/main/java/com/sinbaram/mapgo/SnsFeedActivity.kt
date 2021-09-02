@@ -7,8 +7,6 @@ import android.view.View
 import android.widget.*
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -19,11 +17,23 @@ import com.naver.maps.map.overlay.Marker
 import com.sinbaram.mapgo.API.ServerClient
 import com.sinbaram.mapgo.API.ServerPostAPI
 import com.sinbaram.mapgo.Model.Comment
+import com.sinbaram.mapgo.Model.Like
 import com.sinbaram.mapgo.Model.PostFeedItem
+import com.sinbaram.mapgo.databinding.ActivitySnsFeedBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
+/** Activity to show SNS Feed
+ *
+ * Previous activity should send single sns object as name "data"
+ * ex.
+ * val data = response.body()!![1]
+ * nextIntent.putExtra("data", data)
+ *
+ * Also, val userId should be user's id who logged in.
+ * */
 class SnsFeedActivity : AppCompatActivity(), OnMapReadyCallback {
     val userId : Int = 2 // this value will get from MapGoActivity
     val baseurl = BuildConfig.SERVER_ADDRESS
@@ -32,99 +42,64 @@ class SnsFeedActivity : AppCompatActivity(), OnMapReadyCallback {
     val likerList = mutableListOf<Int>()
     val serverAPI = ServerPostAPI.GetSnsClient()!!.create(ServerClient::class.java)
     val marker = Marker()
-    lateinit var viewpager : ViewPager2
-    lateinit var recycler : RecyclerView
+    private lateinit var binding : ActivitySnsFeedBinding
+    val TAG_SUCCESS = "success"
+    val TAG_FAILURE = "error"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sns_feed)
+        binding = ActivitySnsFeedBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // load sns post's data
         val postInfo = intent.getSerializableExtra("data") as PostFeedItem
-        val postId : Int = postInfo.postID
-        val writerName : String = postInfo.writer.username
-        val writerImage : String = baseurl + postInfo.writer.picture
-        val postcontent : String = postInfo.contents
-        val postTime : String = postInfo.postTime.split(".")[0].replace("T", " ")
-        val postLat : Double = postInfo.location.lat
-        val postLong : Double = postInfo.location.lng
-        marker.position = LatLng(postLat, postLong)
-        val liker = postInfo.like
-        var likerCount : Int = 0
-        for (likeobj in liker) {
+        val snsfeed = SnsFeedInformation(postInfo, baseurl)
+        marker.position = LatLng(snsfeed.postLat, snsfeed.postLong)
+        for (likeobj in snsfeed.liker) {
             likerList += likeobj.liker
         }
-        likerCount = likerList.size
+        snsfeed.likerCount = likerList.size
         for (imageobj in postInfo.postImage) {
             postImageList += baseurl + imageobj.image
         }
-
-        // load views from activity_sns_feed
-        val userName = findViewById<TextView>(R.id.userName)
-        val userimage = findViewById<ImageView>(R.id.userImage)
-        val posttime = findViewById<TextView>(R.id.postTime)
-        val content = findViewById<TextView>(R.id.content)
-        viewpager = findViewById(R.id.imageSlider)
-        val commentButton = findViewById<Button>(R.id.commentButton)
-        val commentEditText = findViewById<EditText>(R.id.commentEdittext)
-        val unlikedButton = findViewById<ImageButton>(R.id.unlikedButton)
-        val likedButton = findViewById<ImageButton>(R.id.likedButton)
-        val likeCountTextView = findViewById<TextView>(R.id.likeCount)
-        recycler = findViewById(R.id.commentRecycler)
 
         val fm = supportFragmentManager
         val mapFragment = fm.findFragmentById(R.id.map) as MapFragment?
             ?: MapFragment.newInstance().also {
                 fm.beginTransaction().add(R.id.map, it).commit()
             }
-
         mapFragment.getMapAsync(this)
 
         // set like button visiblity by the user liked/not liked status for post
         val isUserLikedThisPost = likerList.contains(userId)
         if (isUserLikedThisPost) {
-            likedButton.setVisibility(View.VISIBLE)
-            unlikedButton.setVisibility(View.INVISIBLE)
+            binding.likedButton.setVisibility(View.VISIBLE)
+            binding.unlikedButton.setVisibility(View.INVISIBLE)
         }
         else {
-            likedButton.setVisibility(View.INVISIBLE)
-            unlikedButton.setVisibility(View.VISIBLE)
+            binding.likedButton.setVisibility(View.INVISIBLE)
+            binding.unlikedButton.setVisibility(View.VISIBLE)
         }
 
-
         // set post's username, user image, post time, content
-        userName.setText(writerName)
-        posttime.setText(postTime)
-        content.setText(postcontent)
-        Glide.with(this).load(writerImage).into(userimage)
+        setViewWithFeedInformation(snsfeed)
+        binding.imageSlider.adapter = ImageSliderAdapter(this, postImageList)
+        binding.commentRecycler.layoutManager = LinearLayoutManager(this)
+        binding.commentRecycler.setHasFixedSize(false)
+        getPostComment(snsfeed.postId)
 
-        viewpager.adapter = ImageSliderAdapter(this, postImageList)
-        recycler.layoutManager = LinearLayoutManager(this)
-        recycler.setHasFixedSize(false)
-        getPostComment(postId)
-
-        commentButton.setOnClickListener(View.OnClickListener {
-            val comment_toPost : String = commentEditText.text.toString()
-            uploadPostComment(postId, userId, comment_toPost)
+        binding.commentButton.setOnClickListener(View.OnClickListener {
+            val comment_toPost : String = binding.commentEdittext.text.toString()
+            uploadPostComment(snsfeed.postId, userId, comment_toPost)
         })
-
-        likeCountTextView.setText(likerCount.toString())
-        unlikedButton.setOnClickListener(View.OnClickListener {
-            setPostLike(postId, userId)
-            unlikedButton.setVisibility(View.INVISIBLE)
-            likedButton.setVisibility(View.VISIBLE)
-            likerCount++
-            likeCountTextView.setText(likerCount.toString())
+        binding.likeCount.setText(snsfeed.likerCount.toString())
+        binding.unlikedButton.setOnClickListener(View.OnClickListener {
+            setPostLike(snsfeed.postId, userId)
+            setLikeStatus(snsfeed, false)
         })
-
-        likedButton.setOnClickListener(View.OnClickListener {
-            removePostLike(postId, userId)
-            likedButton.setVisibility(View.INVISIBLE)
-            unlikedButton.setVisibility(View.VISIBLE)
-            likerCount--
-            likeCountTextView.setText(likerCount.toString())
+        binding.likedButton.setOnClickListener(View.OnClickListener {
+            removePostLike(snsfeed.postId, userId)
+            setLikeStatus(snsfeed, true)
         })
-
-        //Log.d("outputtest", postId.toString()+" "+writerName+" "+writerImage+" "+postcontent+" "+postcontent+" "+postImageList+" "+postLat+" "+postLong+" "+postTime)
     }
 
     @UiThread
@@ -134,6 +109,37 @@ class SnsFeedActivity : AppCompatActivity(), OnMapReadyCallback {
         map.moveCamera(cameraUpdate)
     }
 
+    /** set post's username, user image, post time, content */
+    fun setViewWithFeedInformation(snsfeed : SnsFeedInformation) {
+        binding.userName.text = snsfeed.writerName
+        binding.postTime.text = snsfeed.postTime
+        binding.content.text = snsfeed.postcontent
+        Glide.with(this).load(snsfeed.writerImage).into(binding.userImage)
+    }
+
+    /** set button, liker count as current user's like status of current post
+     * @Param snsfeed : class SnsFeedInformation which contains information of sns feed
+     * @Param isCurrentlyLike : 'current' ike status of user.
+     *                           true if current user liked to this post(heart is red),
+     *                           false if current user unliked to this post(heart is empty)
+     * */
+    fun setLikeStatus(snsfeed: SnsFeedInformation, isCurrentlyLike: Boolean) {
+        if (isCurrentlyLike) {
+            binding.likedButton.setVisibility(View.INVISIBLE)
+            binding.unlikedButton.setVisibility(View.VISIBLE)
+            snsfeed.likerCount--
+        }
+        else {
+            binding.unlikedButton.setVisibility(View.INVISIBLE)
+            binding.likedButton.setVisibility(View.VISIBLE)
+            snsfeed.likerCount++
+        }
+        binding.likeCount.setText(snsfeed.likerCount.toString())
+    }
+
+    /** Get comment from post
+     * @param postId : id of sns post
+     * */
     fun getPostComment(postId : Int) {
         commentList.clear()
         val apiCall : Call<List<Comment>> = serverAPI.GetComments(postId)
@@ -146,59 +152,97 @@ class SnsFeedActivity : AppCompatActivity(), OnMapReadyCallback {
                         val commentMap = mapOf("writer" to commentObj.writer.username, "writerImage" to baseurl+commentObj.writer.picture, "contents" to commentObj.contents)
                         commentList += commentMap
                     }
-                    recycler.adapter = null
-                    recycler.layoutManager = null
+                    binding.commentRecycler.adapter = null
+                    binding.commentRecycler.layoutManager = null
                     val adapter = CommentRecyclerAdapter(this@SnsFeedActivity, commentList)
-                    recycler.adapter = adapter
-                    recycler.layoutManager = LinearLayoutManager(this@SnsFeedActivity)
+                    binding.commentRecycler.adapter = adapter
+                    binding.commentRecycler.layoutManager = LinearLayoutManager(this@SnsFeedActivity)
                 }
             }
 
             override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
-                Log.d("respError", "Failed to get comments : "+t.toString())
+                Log.d("respError", t.toString())
             }
         })
     }
 
+    /** upload comment to post
+     * @param postId : id of post which want to upload comments to
+     * @param userId : id of user which will be author of comment
+     * @param comment : content of comment
+     * */
     fun uploadPostComment(postId : Int, userId : Int, comment : String) {
         val apiCall : Call<String> = serverAPI.PostComment(postId, userId, comment)
         apiCall.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.d("test", "comment done")
+                Log.d(TAG_SUCCESS, "comment done")
                 getPostComment(postId)
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.d("respError", "Failed to post comments : "+t.toString())
+                Log.d(TAG_FAILURE, "failed to upload comment")
             }
         })
     }
 
+    /** add like to post
+     * @param postId : id of post which added like to
+     * @param userId : id of user who liked to this post
+     */
     fun setPostLike(postId : Int, userId : Int) {
         val apiCall : Call<String> = serverAPI.AddLike(postId, userId)
         apiCall.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.d("test", "add like done")
+                Log.d(TAG_SUCCESS, "add like done")
                 likerList+=userId
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.d("respError", "Failed to add like : "+t.toString())
+                Log.d(TAG_FAILURE, "failed to add like")
             }
         })
     }
 
+    /** remove like to post
+     * @param postId : id of post which removed like to
+     * @param userId : id of user who unliked to this post
+     */
     fun removePostLike(postId : Int, userId : Int) {
         val apiCall : Call<String> = serverAPI.DeleteLike(postId, userId)
         apiCall.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.d("test", "remove like done")
+                Log.d(TAG_SUCCESS, "remove like done")
                 likerList.remove(userId)
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.d("respError", "Failed to remove like : "+t.toString())
+                Log.d(TAG_FAILURE, "failed to remove like")
             }
         })
     }
+}
+
+/** class of informations of sns feed */
+data class SnsFeedInformation(
+    val postId: Int,
+    val writerName: String,
+    val writerImage: String,
+    val postcontent: String,
+    val postTime: String,
+    val postLat: Double,
+    val postLong: Double,
+    val liker: List<Like>,
+    var likerCount: Int,
+) {
+    constructor(postInfo: PostFeedItem, baseurl : String) : this(
+        postInfo.postID,
+        postInfo.writer.username,
+        baseurl + postInfo.writer.picture,
+        postInfo.contents,
+        postInfo.postTime.split(".")[0].replace("T", " "),
+        postInfo.location.lat,
+        postInfo.location.lng,
+        postInfo.like,
+        0,
+    )
 }
