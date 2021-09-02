@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SnsFeedActivity">
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/userProfileLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="TextView"
+                    android:textColor="#000000"
+                    android:textColorHighlight="#000000"
+                    android:textSize="20sp"
+                    app:layout_constraintLeft_toRightOf="@+id/userImage"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/postTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="30dp"
+                    android:text="TextView"
+                    app:layout_constraintLeft_toRightOf="@+id/userImage"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/userImage"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@tools:sample/avatars" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/content"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="25dp"
+                android:text="TextView"
+                android:textColor="#1C1C1C"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@+id/imageSlider"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userProfileLayout"
+                app:layout_constraintVertical_bias="0.439" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/imageSlider"
+                android:layout_width="360dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="35dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/content" >
+            </androidx.viewpager2.widget.ViewPager2>
+
+            <fragment
+                android:layout_width="330dp"
+                android:layout_height="190dp"
+                android:layout_marginTop="35dp"
+                android:id="@+id/map"
+                android:name="com.naver.maps.map.MapFragment"
+                app:layout_constraintTop_toBottomOf="@id/imageSlider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <EditText
+                android:id="@+id/commentEdittext"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:ems="10"
+                android:hint="댓글..."
+                android:inputType="textPersonName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/map" />
+
+            <Button
+                android:id="@+id/commentButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="35dp"
+                android:text="저장"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toRightOf="@id/commentEdittext"
+                app:layout_constraintTop_toBottomOf="@id/map" />
+
+
+            <ImageButton
+                android:id="@+id/unlikedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/heart_unfilled"
+                android:layout_marginTop="38dp"
+                android:layout_marginLeft="10dp"
+                android:background="@null"
+                app:layout_constraintLeft_toRightOf="@+id/commentButton"
+                app:layout_constraintTop_toBottomOf="@id/map"/>
+
+            <ImageButton
+                android:id="@+id/likedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/heart_filled"
+                android:layout_marginTop="38dp"
+                android:layout_marginLeft="10dp"
+                android:background="@null"
+                app:layout_constraintLeft_toRightOf="@+id/commentButton"
+                app:layout_constraintTop_toBottomOf="@id/map"/>
+
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="55dp"
+                android:layout_marginTop="50dp"
+                android:text="0"
+                android:textColor="#730000"
+                android:textSize="15sp"
+                app:layout_constraintLeft_toRightOf="@id/commentButton"
+                app:layout_constraintTop_toBottomOf="@id/map" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/commentRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toBottomOf="@+id/commentEdittext"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
