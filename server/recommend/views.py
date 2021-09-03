@@ -15,8 +15,8 @@ import json
 class STCViewSet(viewsets.ViewSet):
     @classmethod
     def list(self, request):
-        # recommender1 = recommend1()
-        # recommender2 = recommend2()
+        recommender1 = recommend1()
+
         UserID = request.query_params["User_ID"]
         latitude = request.query_params["lat"]
         longitude = request.query_params["long"]
@@ -30,7 +30,7 @@ class STCViewSet(viewsets.ViewSet):
                        "epsilon": epsilon}
         serializer = PlaceRequestSerializer(data=requestData)
         if serializer.is_valid():
-            requestResult1 = recommend1.recommend(
+            requestResult1 = recommender1.recommend(
                 latitude, longitude, keywords, epsilon
             )
             requestResult2 = recommend2.recommend(

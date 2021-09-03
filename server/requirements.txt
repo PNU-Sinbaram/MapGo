@@ -11,3 +11,4 @@ six
 urllib3
 tensorflow-gpu
 typing
+googletrans==4.0.0rc1
