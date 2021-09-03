@@ -1,16 +1,14 @@
 # -*-coding:utf-8-*-
 
 import os
-import sys
-import urllib.request
+import requests
 import json
-import random
-import config
 from googletrans import Translator
 
 
 class recommend1:
     def __init__(self):
+        """Set radius and api key for google nearby search."""
         self.radius = 100
         self.key = os.environ["GOOGLE_PLACES_KEY"]
 
@@ -20,16 +18,13 @@ class recommend1:
                    + "&radius=" + str(self.radius)\
                    + "&key=" + self.key
 
-        request = urllib.request.Request(url)
-        response = urllib.request.urlopen(request)
+        response = requests.get(url)
 
-        rescode = response.getcode()
-
-        if(rescode == 200):
-            response_body = response.read()
-            return(response_body.decode('utf-8'))
+        if(response.status_code == 200):
+            response_body = response.text
+            return(response_body)
         else:
-            print("Error Code:" + rescode)
+            print("Error Code:" + response.status_code)
 
     def call_review(self, place_key):
         url = "https://maps.googleapis.com/maps/api/place/details/json?"\
@@ -37,25 +32,23 @@ class recommend1:
               + "&fields=name,rating,review"\
               + "&key=" + self.key
 
-        request = urllib.request.Request(url)
-        response = urllib.request.urlopen(request)
+        response = requests.get(url)
 
-        rescode = response.getcode()
-
-        if(rescode == 200):
-            response_body = response.read()
-            return(response_body.decode('utf-8'))
+        if(response.status_code == 200):
+            response_body = response.text
+            return(response_body)
         else:
-            print("Error Code:" + rescode)
+            print("Error Code:" + response.status_code)
 
-    def LocalAlignment(self, String1, String2, GapPenalty):
+    @classmethod
+    def LocalAlignment(cls, String1, String2, GapPenalty):
         Match, MisMatch = 15, -5
         DP = []
-        for i in range(len(String2)+1):
+        for _ in range(len(String2)+1):
             DP.append([0]*(len(String1)+1))
 
-        for y in range(len(String2)):
-            for x in range(len(String1)):
+        for y in enumerate(String2):
+            for x in enumerate(String1):
                 MatchTest = 0
 
                 if(String1[x] == String2[y]):
@@ -69,12 +62,14 @@ class recommend1:
 
         return DP
 
-    def word_tanslate(self, word):
+    @classmethod
+    def word_tanslate(cls, word):
         translator = Translator()
         result = translator.translate(word, dest="en")
         return result.text
 
-    def json2list(self, js):
+    @classmethod
+    def json2list(cls, js):
         return json.loads(js)
 
     def recommend(self, lat, lng, keyword, epsilon):
@@ -94,7 +89,7 @@ class recommend1:
             try:
                 if(place['business_status'] != 'OPERATIONAL'):
                     continue
-            except Exception:
+            except KeyError:
                 continue
 
             place_info.append(place['geometry']['location']['lat'])
@@ -102,7 +97,7 @@ class recommend1:
 
             places_info.append(place_info)
 
-        for x in range(len(places_info)):
+        for x, _ in enumerate(places_info):
             place_key = places_info[x][1]
             review_result = self.call_review(place_key)
             reviews = self.json2list(review_result)
