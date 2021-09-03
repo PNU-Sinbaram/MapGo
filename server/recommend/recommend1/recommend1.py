@@ -11,7 +11,7 @@ from googletrans import Translator
 class recommend1 :
     def __init__(self):
         self.radius = 100
-        self.key = config.api_key
+        self.key = os.environ["GOOGLE_PLACES_KEY"]
 
     def call_api(self, lat, lng):
         url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"\
